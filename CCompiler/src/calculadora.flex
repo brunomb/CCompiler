@@ -18,11 +18,22 @@ import java_cup.runtime.*;
    	   }
 %}
 
+numero = [0-9]+
+letra = [a-zA-Z]
+hexa = [a-fA-F0-9]
+Exp = [Ee][+-]?{numero}+
+FS = (f|F|l|L)
+IS = (u|U|l|L)*
+
+
+id = ({letra} | _)({letra} | {numero} | _)*
+
 %%
 
 /*Aqui estao definidos os possiveis tokens que podem ser encontrados numa calculadora simples*/
 
 /*adicionado de C*/
+
 "break" { return symbol(sym.BREAK, new String(yytext())); }
 "auto" { return symbol(sym.AUTO, new String(yytext())); }
 "break" { return symbol(sym.BREAK, new String(yytext())); }
@@ -102,16 +113,20 @@ import java_cup.runtime.*;
 "^"	{ return symbol(sym.CIRCUNFLEXO, new String(yytext())); }
 "|"	{ return symbol(sym.PIPELINE, new String(yytext())); }
 "?"	{ return symbol(sym.INTERROGACAO, new String(yytext())}
-
+{id} { return symbol(sym.IDENTIFIER, new String(yytext())}
 /* Duvidas aqui \/ */
 
-"duvidaConstant"	{ return symbol(sym.CONSTANT, new String(yytext())}
-"duvidaIdent" { return symbol(sym.IDENTIFIER, new String(yytext())}
+[ \v\n\t\f] { }
+
+0[xX]{hexa}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
+0{numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
+{numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
+L?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
+{numero}+{Exp}{FS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
+{numero}*"."{numero}+({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
+{numero}+"."{numero}*({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
+
 "duvidastringliteral" { return symbol(sym.STRING_LITERAL, new String(yytext())}
 
 /* Duvidas aqui /\ */
-
-[0-9]+ { return symbol(sym.NUMBER); }
-[ \r\n\t\f] { /*nao faz nada*/ }
-[a-z] { return symbol(sym.STRING); }
-<<EOF>> { return symbol(sym.EOF); }
+/* <<EOF>> { return symbol(sym.EOF); } */
