@@ -1,0 +1,527 @@
+import java_cup.runtime.*;
+
+/*Este codigo foi reusado. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada.*/
+parser code {:
+    
+    public void report_error(String message, Object info) {
+   
+        StringBuffer m = new StringBuffer("Error");
+   
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {
+                /* Add to the end of the StringBuffer error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuffer error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+	
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:};
+
+/*Aqui estao listado todos os simbolos terminais da nossa gramatica*/
+terminal AUTO, BREAK, CASE, CHAR, CONST, CONTINUE, DEFAULT, DO, DOUBLE, ELSE, ENUM, EXTERN, FLOAT, FOR, GOTO, IF, INT,
+LONG, REGISTER, RETURN, SHORT, SIGNED, SIZEOF, STATIC, STRUCT, SWITCH, TYPEDEF, UNION, UNSIGNED, VOID, VOLATILE, WHILE,
+ELLIPSIS, RIGHT_ASSIGN, LEFT_ASSIGN, ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN, MOD_ASSIGN, AND_ASSIGN, XOR_ASSIGN,
+OR_ASSIGN, RIGHT_OP, LEFT_OP, INC_OP, DEC_OP, PTR_OP, AND_OP, OR_OP, LE_OP, GE_OP, EQ_OP, NE_OP, PONTOEVIRGULA, ABRECHAVES,
+FECHACHAVES, VIRGULA, DOISPONTOS, IGUAL, ABREPARENTESES, FECHAPARENTESES, ABRECOCHETES, FECHACOCHETES, PONTO, ECOMERCIAL,
+EXCLAMACAO, TIO, MENOS, MAIS, ASTERISCO, BARRA, PORCENTO, MENORQUE, MAIORQUE, CIRCUNFLEXO, PIPELINE, INTERROGACAO,  
+NUMBER, STRING, /* DUVIDAAAAAAAAAAAAA */ CONSTANT, IDENTIFIER, STRING_LITERAL ; /* CONSTANT, IDENTIFIER, STRING_LITERAL estão errados, falta definir! */
+
+/*Aqui estao todos os simbolos nao terminais da gramatica*/
+non terminal primary_expression,
+		 	 postfix_expression,
+		 	 argument_expression_list,
+		 	 unary_expression,
+		 	 unary_operator,
+		 	 cast_expression,
+		 	 additive_expression,
+		 	 shift_expression,
+		 	 relational_expression,
+		 	 equality_expression,
+		 	 and_expression,	
+		 	 inclusive_or_expression,
+		 	 exclusive_or_expression,
+		 	 logical_and_expression,	
+			 logical_or_expression,
+			 conditional_expression,
+			 assignment_expression,
+			 assignment_operator,
+			 expression,
+			 constant_expression,
+			 declaration,
+			 declaration_specifiers,
+			 init_declarator_list,
+			 init_declarator,
+			 storage_class_specifier,
+			 type_specifier,
+			 struct_or_union_specifier,
+			 struct_or_union,
+			 struct_declaration_list,
+			 struct_declaration,
+			 specifier_qualifier_list,
+			 struct_declarator_list,
+			 struct_declarator,
+			 enum_specifier,
+			 enumerator_list,
+			 enumerator,
+			 type_qualifier,
+			 declarator,
+			 direct_declarator,
+			 pointer,
+			 type_qualifier_list,
+			 parameter_type_list,
+			 parameter_list,
+			 parameter_declaration,
+			 identifier_list,
+	 		 type_name,
+		 	 abstract_declarator,
+			 direct_abstract_declarator,
+			 initializer,
+			 initializer_list,
+			 statement,
+			 labeled_statement,
+			 compound_statement,
+			 declaration_list,
+			 statement_list,
+			 expression_statement,
+			 selection_statement,
+			 iteration_statement,
+			 jump_statement,
+			 translation_unit,
+			 external_declaration,
+			 function_definition,
+			 multiplicative_expression,
+		 	 /**/
+		 	 expr,
+		 	 expr_tail,
+		 	 factor,
+		 	 factor_tail,
+		 	 term;
+
+/*Aqui estao as regras de producao*/
+
+/*Regras de C*/
+
+primary_expression 
+	::= IDENTIFIER 
+	| CONSTANT 
+	| STRING_LITERAL 
+	| ABREPARENTESES expression FECHAPARENTESES
+	;
+
+postfix_expression 
+	::= primary_expression 
+	| postfix_expression ABRECOCHETES expression FECHACOCHETES 
+	| postfix_expression ABREPARENTESES FECHAPARENTESES 
+	| postfix_expression ABREPARENTESES argument_expression_list FECHAPARENTESES
+	| postfix_expression PONTO IDENTIFIER
+	| postfix_expression PTR_OP IDENTIFIER
+	| postfix_expression INC_OP
+	| postfix_expression DEC_OP
+	;
+	
+argument_expression_list
+	::= assignment_expression
+	| argument_expression_list VIRGULA assignment_expression
+	;
+	
+unary_expression
+	::= postfix_expression
+	| INC_OP unary_expression
+	| DEC_OP unary_expression
+	| unary_operator cast_expression
+	| SIZEOF unary_expression
+	| SIZEOF ABREPARENTESES type_name FECHAPARENTESES
+	;
+
+unary_operator
+	::= ECOMERCIAL
+	| ASTERISCO
+	| MAIS
+	| MENOS
+	| TIO
+	| EXCLAMACAO
+	;
+	
+cast_expression
+	::= unary_expression
+	| ABREPARENTESES type_name FECHAPARENTESES cast_expression
+	;
+	
+multiplicative_expression
+	::= cast_expression
+	| multiplicative_expression ASTERISCO cast_expression
+	| multiplicative_expression BARRA cast_expression
+	| multiplicative_expression PORCENTO cast_expression
+	;	
+	
+additive_expression
+	::= multiplicative_expression
+	| additive_expression MAIS multiplicative_expression
+	| additive_expression MENOS multiplicative_expression
+	;
+
+shift_expression
+	::= additive_expression
+	| shift_expression LEFT_OP additive_expression
+	| shift_expression RIGHT_OP additive_expression
+	;
+
+relational_expression
+	::= shift_expression
+	| relational_expression MENORQUE shift_expression
+	| relational_expression MAIORQUE shift_expression
+	| relational_expression LE_OP shift_expression
+	| relational_expression GE_OP shift_expression
+	;
+	
+equality_expression
+	::= relational_expression
+	| equality_expression EQ_OP relational_expression
+	| equality_expression NE_OP relational_expression
+	;
+
+and_expression
+	::= equality_expression
+	| and_expression ECOMERCIAL equality_expression
+	;
+	
+exclusive_or_expression
+	::= and_expression
+	| exclusive_or_expression CIRCUNFLEXO and_expression
+	;
+	
+inclusive_or_expression
+	::= exclusive_or_expression
+	| inclusive_or_expression PIPELINE exclusive_or_expression
+	;
+
+logical_and_expression
+	::= inclusive_or_expression
+	| logical_and_expression AND_OP inclusive_or_expression
+	;
+	
+logical_or_expression
+	::= logical_and_expression
+	| logical_or_expression OR_OP logical_and_expression
+	;
+	
+conditional_expression
+	::= logical_or_expression
+	| logical_or_expression INTERROGACAO expression DOISPONTOS conditional_expression
+	;
+	
+assignment_expression
+	::= conditional_expression
+	| unary_expression assignment_operator assignment_expression
+	;
+
+assignment_operator
+	::= IGUAL
+	| MUL_ASSIGN
+	| DIV_ASSIGN
+	| MOD_ASSIGN
+	| ADD_ASSIGN
+	| SUB_ASSIGN
+	| LEFT_ASSIGN
+	| RIGHT_ASSIGN
+	| AND_ASSIGN
+	| XOR_ASSIGN
+	| OR_ASSIGN
+	;
+	
+expression
+	::= assignment_expression
+	| expression VIRGULA assignment_expression
+	;
+	
+constant_expression
+	::= conditional_expression
+	;
+	
+declaration
+	::= declaration_specifiers PONTOEVIRGULA
+	| declaration_specifiers init_declarator_list PONTOEVIRGULA
+	;
+
+declaration_specifiers
+	::= storage_class_specifier
+	| storage_class_specifier declaration_specifiers
+	| type_specifier
+	| type_specifier declaration_specifiers
+	| type_qualifier
+	| type_qualifier declaration_specifiers
+	;
+
+init_declarator_list
+	::= init_declarator
+	| init_declarator_list VIRGULA init_declarator
+	;
+
+init_declarator
+	::= declarator
+	| declarator IGUAL initializer
+	;
+
+storage_class_specifier
+	::= TYPEDEF
+	| EXTERN
+	| STATIC
+	| AUTO
+	| REGISTER
+	;
+
+type_specifier
+	::= VOID
+	| CHAR
+	| SHORT
+	| INT
+	| LONG
+	| FLOAT
+	| DOUBLE
+	| SIGNED
+	| UNSIGNED
+	| struct_or_union_specifier
+	| enum_specifier
+	| type_name
+	;
+
+struct_or_union_specifier
+	::= struct_or_union IDENTIFIER ABRECHAVES struct_declaration_list FECHACHAVES
+	| struct_or_union ABRECHAVES struct_declaration_list FECHACHAVES
+	| struct_or_union IDENTIFIER
+	;
+
+struct_or_union
+	::= STRUCT
+	| UNION
+	;
+
+struct_declaration_list
+	::= struct_declaration
+	| struct_declaration_list struct_declaration
+	;
+
+struct_declaration
+	::= specifier_qualifier_list struct_declarator_list PONTOEVIRGULA
+	;
+
+specifier_qualifier_list
+	::= type_specifier specifier_qualifier_list
+	| type_specifier
+	| type_qualifier specifier_qualifier_list
+	| type_qualifier
+	;
+
+struct_declarator_list
+	::= struct_declarator
+	| struct_declarator_list VIRGULA struct_declarator
+	;
+
+struct_declarator
+	::= declarator
+	| DOISPONTOS constant_expression
+	| declarator DOISPONTOS constant_expression
+	;
+
+enum_specifier
+	::= ENUM ABRECHAVES enumerator_list FECHACHAVES
+	| ENUM IDENTIFIER ABRECHAVES enumerator_list FECHACHAVES
+	| ENUM IDENTIFIER
+	;
+
+enumerator_list
+	::= enumerator
+	| enumerator_list VIRGULA enumerator
+	;
+
+enumerator
+	::= IDENTIFIER
+	| IDENTIFIER IGUAL constant_expression
+	;
+
+type_qualifier
+	::= CONST
+	| VOLATILE
+	;
+
+declarator
+	::= pointer direct_declarator
+	| direct_declarator
+	;
+
+direct_declarator
+	::= IDENTIFIER
+	| ABREPARENTESES declarator FECHAPARENTESES
+	| direct_declarator ABRECOCHETES constant_expression FECHACOCHETES
+	| direct_declarator ABRECOCHETES FECHACOCHETES
+	| direct_declarator ABREPARENTESES parameter_type_list FECHAPARENTESES
+	| direct_declarator ABREPARENTESES identifier_list FECHAPARENTESES
+	| direct_declarator ABREPARENTESES FECHAPARENTESES
+	;
+
+pointer
+	::= ASTERISCO
+	| ASTERISCO type_qualifier_list
+	| ASTERISCO pointer
+	| ASTERISCO type_qualifier_list pointer
+	;
+
+type_qualifier_list
+	::= type_qualifier
+	| type_qualifier_list type_qualifier
+	;
+
+
+parameter_type_list
+	::= parameter_list
+	| parameter_list VIRGULA ELLIPSIS
+	;
+
+parameter_list
+	::= parameter_declaration
+	| parameter_list VIRGULA parameter_declaration
+	;
+
+parameter_declaration
+	::= declaration_specifiers declarator
+	| declaration_specifiers abstract_declarator
+	| declaration_specifiers
+	;
+
+identifier_list
+	::= IDENTIFIER
+	| identifier_list VIRGULA IDENTIFIER
+	;
+
+type_name
+	::= specifier_qualifier_list
+	| specifier_qualifier_list abstract_declarator
+	;
+
+abstract_declarator
+	::= pointer
+	| direct_abstract_declarator
+	| pointer direct_abstract_declarator
+	;
+
+direct_abstract_declarator
+	::= ABREPARENTESES abstract_declarator FECHAPARENTESES
+	| ABRECOCHETES FECHACOCHETES
+	| ABRECOCHETES constant_expression FECHACOCHETES
+	| direct_abstract_declarator ABRECOCHETES FECHACOCHETES
+	| direct_abstract_declarator ABRECOCHETES constant_expression FECHACOCHETES
+	| ABREPARENTESES FECHAPARENTESES
+	| ABREPARENTESES parameter_type_list FECHAPARENTESES
+	| direct_abstract_declarator ABREPARENTESES FECHAPARENTESES
+	| direct_abstract_declarator ABREPARENTESES parameter_type_list FECHAPARENTESES
+	;
+
+initializer
+	::= assignment_expression
+	| ABRECHAVES initializer_list FECHACHAVES
+	| ABRECHAVES initializer_list VIRGULA FECHACHAVES
+	;
+
+initializer_list
+	::= initializer
+	| initializer_list VIRGULA initializer
+	;
+
+statement
+	::= labeled_statement
+	| compound_statement
+	| expression_statement
+	| selection_statement
+	| iteration_statement
+	| jump_statement
+	;
+
+labeled_statement
+	::= IDENTIFIER DOISPONTOS statement
+	| CASE constant_expression DOISPONTOS statement
+	| DEFAULT DOISPONTOS statement
+	;
+
+compound_statement
+	::= ABRECHAVES FECHACHAVES
+	| ABRECHAVES statement_list FECHACHAVES
+	| ABRECHAVES declaration_list FECHACHAVES
+	| ABRECHAVES declaration_list statement_list FECHACHAVES
+	;
+
+declaration_list
+	::= declaration
+	| declaration_list declaration
+	;
+
+statement_list
+	::= statement
+	| statement_list statement
+	;
+
+expression_statement
+	::= PONTOEVIRGULA
+	| expression PONTOEVIRGULA
+	;
+
+selection_statement
+	::= IF ABREPARENTESES expression FECHAPARENTESES statement
+	| IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement
+	| SWITCH ABREPARENTESES expression FECHAPARENTESES statement
+	;
+
+iteration_statement
+	::= WHILE ABREPARENTESES expression FECHAPARENTESES statement
+	| DO statement WHILE ABREPARENTESES expression FECHAPARENTESES PONTOEVIRGULA
+	| FOR ABREPARENTESES expression_statement expression_statement FECHAPARENTESES statement
+	| FOR ABREPARENTESES expression_statement expression_statement expression FECHAPARENTESES statement
+	;
+
+jump_statement
+	::= GOTO IDENTIFIER PONTOEVIRGULA
+	| CONTINUE PONTOEVIRGULA
+	| BREAK PONTOEVIRGULA
+	| RETURN PONTOEVIRGULA
+	| RETURN expression PONTOEVIRGULA
+	;
+
+translation_unit
+	::= external_declaration
+	| translation_unit external_declaration
+	;
+
+external_declaration
+	::= function_definition
+	| declaration
+	;
+
+function_definition
+	::= declaration_specifiers declarator declaration_list compound_statement
+	| declaration_specifiers declarator compound_statement
+	| declarator declaration_list compound_statement
+	| declarator compound_statement
+	;
+
+expr ::= factor expr_tail;
+expr_tail ::= | MAIS factor expr_tail | MENOS factor expr_tail;
+factor ::= term factor_tail;
+factor_tail ::= | ASTERISCO term factor_tail | BARRA term factor_tail;
+term ::= NUMBER | ABREPARENTESES expr FECHAPARENTESES;
+    
+    
