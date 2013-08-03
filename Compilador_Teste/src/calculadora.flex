@@ -22,8 +22,7 @@ import java_cup.runtime.*;
 
 /*Aqui estao definidos os possiveis tokens que podem ser encontrados numa calculadora simples*/
 
-/*adicionado de C
-"auto" { return symbol(sym.AUTO, new String(yytext())); }
+/*adicionado de C*/
 "break" { return symbol(sym.BREAK, new String(yytext())); }
 "auto" { return symbol(sym.AUTO, new String(yytext())); }
 "break" { return symbol(sym.BREAK, new String(yytext())); }
@@ -57,14 +56,61 @@ import java_cup.runtime.*;
 "void" { return symbol(sym.VOID, new String(yytext())); }
 "volatile" { return symbol(sym.VOLATILE, new String(yytext())); }
 "while" { return symbol(sym.WHILE, new String(yytext())); }
-/*
+"..." { return symbol(sym.ELLIPSIS, new String(yytext())); }
+">>=" { return symbol(sym.RIGHT_ASSIGN, new String(yytext())); }
+"<<=" { return symbol(sym.LEFT_ASSIGN, new String(yytext())); }
+"+=" { return symbol(sym.ADD_ASSIGN, new String(yytext())); }
+"-=" { return symbol(sym.SUB_ASSIGN, new String(yytext())); }
+"*=" { return symbol(sym.MUL_ASSIGN, new String(yytext())); }
+"/=" { return symbol(sym.DIV_ASSIGN, new String(yytext())); }
+"%=" { return symbol(sym.MOD_ASSIGN, new String(yytext())); }
+"&=" { return symbol(sym.AND_ASSIGN, new String(yytext())); }
+"^=" { return symbol(sym.XOR_ASSIGN, new String(yytext())); }
+"|=" { return symbol(sym.OR_ASSIGN, new String(yytext())); }
+">>" { return symbol(sym.RIGHT_OP, new String(yytext())); }
+"<<" { return symbol(sym.LEFT_OP, new String(yytext())); }
+"++" { return symbol(sym.INC_OP, new String(yytext())); }
+"--" { return symbol(sym.DEC_OP, new String(yytext())); }
+"->" { return symbol(sym.PTR_OP, new String(yytext())); }
+"&&" { return symbol(sym.AND_OP, new String(yytext())); }
+"||" { return symbol(sym.OR_OP, new String(yytext())); }
+"<=" { return symbol(sym.LE_OP, new String(yytext())); }
+">=" { return symbol(sym.GE_OP, new String(yytext())); }
+"==" { return symbol(sym.EQ_OP, new String(yytext())); }
+"!=" { return symbol(sym.NE_OP, new String(yytext())); }
+";"	{ return symbol(sym.PONTOEVIRGULA, new String(yytext())); }
+("{"|"<%") { return symbol(sym.ABRECHAVES, new String(yytext())); }
+("}"|"%>") { return symbol(sym.FECHACHAVES, new String(yytext())); }
+"," { return symbol(sym.VIRGULA, new String(yytext())); }
+":" { return symbol(sym.DOISPONTOS, new String(yytext())); }
+"=" { return symbol(sym.IGUAL, new String(yytext())); }
+"("	{ return symbol(sym.ABREPARENTESES, new String(yytext())); }
+")"	{ return symbol(sym.FECHAPARENTESES, new String(yytext())); }
+("["|"<:") { return symbol(sym.ABRECOCHETES, new String(yytext())); }
+("]"|":>") { return symbol(sym.FECHACOCHETES, new String(yytext())); }
+"."	{ return symbol(sym.PONTO, new String(yytext())); }
+"&"	{ return symbol(sym.ECOMERCIAL, new String(yytext())); }
+"!"	{ return symbol(sym.EXCLAMACAO, new String(yytext())); }
+"~"	{ return symbol(sym.TIO, new String(yytext())); }
+"-"	{ return symbol(sym.MENOS, new String(yytext())); }
+"+"	{ return symbol(sym.MAIS, new String(yytext())); }
+"*"	{ return symbol(sym.ASTERISCO, new String(yytext())); }
+"/"	{ return symbol(sym.BARRA, new String(yytext())); }
+"%"	{ return symbol(sym.PORCENTO, new String(yytext())); }
+"<"	{ return symbol(sym.MENORQUE, new String(yytext())); }
+">"	{ return symbol(sym.MAIORQUE, new String(yytext())); }
+"^"	{ return symbol(sym.CIRCUNFLEXO, new String(yytext())); }
+"|"	{ return symbol(sym.PIPELINE, new String(yytext())); }
+"?"	{ return symbol(sym.INTERROGACAO, new String(yytext())}
 
-"(" { return symbol(sym.LPAREN); }
-")" { return symbol(sym.RPAREN); }
-"-" { return symbol(sym.MINUS); }
-"+" { return symbol(sym.PLUS); }
-"/" { return symbol(sym.DIV); }
-"*" { return symbol(sym.TIMES); }
+/* Duvidas aqui \/ */
+
+"duvidaConstant"	{ return symbol(sym.CONSTANT, new String(yytext())}
+"duvidaIdent" { return symbol(sym.IDENTIFIER, new String(yytext())}
+"duvidastringliteral" { return symbol(sym.STRING_LITERAL, new String(yytext())}
+
+/* Duvidas aqui /\ */
+
 [0-9]+ { return symbol(sym.NUMBER); }
 [ \r\n\t\f] { /*nao faz nada*/ }
 [a-z] { return symbol(sym.STRING); }
