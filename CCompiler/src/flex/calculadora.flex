@@ -1,7 +1,11 @@
+package flex;
+
 import java_cup.runtime.*;
+import cup.sym;
 
 %%
 
+%public
 %class LexicalAnalysisCalculator
 %column
 %line
@@ -30,7 +34,7 @@ IS = (u|U|l|L)*
 
 id = ({letra} | _)({letra} | {numero} | _)*
 
-%x comments
+%x comments incl
 
 %%
 
@@ -132,12 +136,21 @@ letra?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
 
 \"([^\\\"]|\\.)*\" { return symbol(sym.STRING_LITERAL, new String(yytext())}
 
+
+"#include" { }
+
+<incl>[ \t]*      { }/* eat the whitespace */
+<incl>"<"         { }
+<incl>[^ \t\n]+   { }
+<incl>">"         { yybegin(0); } /* got the include file name */
+
 "/*"              { yybegin(comments); }
 
-<comments>"*/"      {yybegin(0);}
 <comments>[^*\n]+   {}
-<comments>"*"       {}
+<comments>"*"+[^*/\n]*   {}
 <comments>\n        {yyline++;}
+<comments>"*"+"/"      {yybegin(0);}
+
 
 /* Duvidas aqui /\ */
 /* <<EOF>> { return symbol(sym.EOF); } */

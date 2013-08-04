@@ -1,6 +1,8 @@
+package main;
 import java.io.FileReader;
-import java_cup.runtime.*;
-import java.io.FileReader;
+
+import cup.parser;
+import flex.LexicalAnalysisCalculator;
 
 public class Main {
 //	public static void main (String[] args) {
