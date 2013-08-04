@@ -16,7 +16,10 @@ import java_cup.runtime.*;
  	   private Symbol symbol(int type, Object val) {
 		   return new Symbol(type, yyline, yycolumn, val);
    	   }
+   	   
 %}
+
+
 
 numero = [0-9]+
 letra = [a-zA-Z]
@@ -26,6 +29,8 @@ FS = (f|F|l|L)
 IS = (u|U|l|L)*
 
 id = ({letra} | _)({letra} | {numero} | _)*
+
+%x comments
 
 %%
 
@@ -126,6 +131,13 @@ letra?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}+"."{numero}*({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
 
 \"([^\\\"]|\\.)*\" { return symbol(sym.STRING_LITERAL, new String(yytext())}
+
+"/*"              { yybegin(comments); }
+
+<comments>"*/"      {yybegin(0);}
+<comments>[^*\n]+   {}
+<comments>"*"       {}
+<comments>\n        {yyline++;}
 
 /* Duvidas aqui /\ */
 /* <<EOF>> { return symbol(sym.EOF); } */
