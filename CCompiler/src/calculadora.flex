@@ -25,7 +25,6 @@ Exp = [Ee][+-]?{numero}+
 FS = (f|F|l|L)
 IS = (u|U|l|L)*
 
-
 id = ({letra} | _)({letra} | {numero} | _)*
 
 %%
@@ -121,12 +120,12 @@ id = ({letra} | _)({letra} | {numero} | _)*
 0[xX]{hexa}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
 0{numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
-L?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
+letra?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}+{Exp}{FS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}*"."{numero}+({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}+"."{numero}*({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
 
-"duvidastringliteral" { return symbol(sym.STRING_LITERAL, new String(yytext())}
+\"([^\\\"]|\\.)*\" { return symbol(sym.STRING_LITERAL, new String(yytext())}
 
 /* Duvidas aqui /\ */
 /* <<EOF>> { return symbol(sym.EOF); } */
