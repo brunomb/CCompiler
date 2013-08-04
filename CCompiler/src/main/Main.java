@@ -2,7 +2,7 @@ package main;
 import java.io.FileReader;
 
 import cup.parser;
-import flex.LexicalAnalysisCalculator;
+import flex.LexicalAnalysisC;
 
 public class Main {
 //	public static void main (String[] args) {
@@ -16,13 +16,13 @@ public class Main {
 //	}
 	  public static void main(String argv[]) {
 		    
-		  LexicalAnalysisCalculator s;
+		  LexicalAnalysisC s;
 		    int errors = 0;
 		    
 		    for (int i = 0; i < argv.length; i++) {
 		      try {
 		        System.out.println("Parsing ["+argv[i]+"]");
-		        s = new LexicalAnalysisCalculator(new FileReader(argv[i]));
+		        s = new LexicalAnalysisC(new FileReader(argv[i]));
 		        parser p = new parser(s);
 		        p.parse();
 		        System.out.println("Number of semantics errors = " + errors + ".");

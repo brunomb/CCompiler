@@ -6,7 +6,7 @@ import cup.sym;
 %%
 
 %public
-%class LexicalAnalysisCalculator
+%class LexicalAnalysisC
 %column
 %line
 %cup
