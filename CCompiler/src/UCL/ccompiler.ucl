@@ -1,0 +1,477 @@
+/*Nome da linguagem*/
+lang_name "ccompiler"
+
+/*Config.*/
+automaton_kind "dtran" /*DUVIDA*/
+bottomup lalr analyzer /*DUVIDA*/
+
+/*Tratamento de erros*/
+error_handling sentence_level { ";" }
+
+/*Palavras Chave*/
+keywords { "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while" }
+
+/*Terminais*/
+terminal ELLIPSIS = "...";
+terminal RIGHT_ASSIGN = ">>=";
+terminal LEFT_ASSIGN  = "<<=";
+terminal ADD_ASSIGN = "+=";
+terminal SUB_ASSIGN = "-=";
+terminal MUL_ASSIGN = "*=";
+terminal DIV_ASSIGN = "/=";
+terminal MOD_ASSIGN = "%=";
+terminal AND_ASSIGN = "&=";
+terminal XOR_ASSIGN = "^=";
+terminal OR_ASSIGN  = "|=";
+terminal RIGHT_OP = ">>";  
+terminal LEFT_OP = "<<";   
+terminal INC_OP = "++";    
+terminal DEC_OP = "--";         
+terminal PTR_OP = "->";         
+terminal AND_OP = "&&";        
+terminal OR_OP = "||";         
+terminal LE_OP = "<=";      
+terminal GE_OP = ">=";        
+terminal EQ_OP = "==";        
+terminal NE_OP = "!=";         
+terminal PONTOEVIRGULA = ";";
+terminal ABRECHAVES = ("{"|"<%");
+terminal FECHACHAVES = ("}"|"%>");
+terminal VIRGULA = ",";             
+terminal DOISPONTOS = ":";                    
+terminal IGUAL = "=";                 
+terminal ABREPARENTESES = "(";                   
+terminal FECHAPARENTESES = ")";               
+terminal ABRECOCHETES = ("["|"<:");             
+terminal FECHACOCHETES = ("]"|":>");              
+terminal PONTO = "."; 
+terminal ECOMERCIAL = "&";
+terminal EXCLAMACAO = "!";
+terminal TIO = "~"; 
+terminal MENOS = "-";   
+terminal MAIS = "+";    
+terminal ASTERISCO = "*";    
+terminal BARRA = "/";      
+terminal PORCENTO = "%";      
+terminal MENORQUE = "<";      
+terminal MAIORQUE = ">";      
+terminal CIRCUNFLEXO = "^";     
+terminal PIPELINE = "|";  
+terminal INTERROGACAO = "?";
+terminal numero = [0-9]+;
+terminal letra = [a-zA-Z];
+terminal hexa = [a-fA-F0-9];
+terminal Exp = [Ee][+-]?{numero}+;
+terminal FS = (f|F|l|L);
+terminal IS = (u|U|l|L)*;
+terminal IDENTIFIER = ({letra} | _)({letra} | {numero} | _)*;
+terminal CONSTANT = 0[xX]{hexa}+{IS}?;
+terminal CONSTANT = 0{numero}+{IS}?;
+terminal CONSTANT = {numero}+{IS}?;
+terminal CONSTANT = letra?'(\\.|[^\\'])+';
+terminal CONSTANT = {numero}+{Exp}{FS}?;
+terminal CONSTANT = {numero}*"."{numero}+({Exp})?{FS}?;
+terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
+
+/*Regras de Produção*/
+<primary_expression>
+	::= IDENTIFIER 
+	| CONSTANT 
+	| STRING_LITERAL 
+	| ABREPARENTESES <expression> FECHAPARENTESES
+	;
+
+<primary_expression>
+	::= <primary_expression> 
+	| <primary_expression> ABRECOCHETES <expression> FECHACOCHETES 
+	| <primary_expression> ABREPARENTESES FECHAPARENTESES 
+	| <primary_expression> ABREPARENTESES <argument_expression_list> FECHAPARENTESES
+	| <primary_expression> PONTO IDENTIFIER
+	| <primary_expression> PTR_OP IDENTIFIER
+	| <primary_expression> INC_OP
+	| <primary_expression> DEC_OP
+	;
+	
+<argument_expression_list>
+	::= <assignment_expression>
+	| <argument_expression_list> VIRGULA <assignment_expression>
+	;
+	
+<unary_expression>
+	::= <primary_expression>
+	| INC_OP <unary_expression>
+	| DEC_OP <unary_expression>
+	| <unary_operator> <cast_expression>
+	| SIZEOF <unary_expression>
+	| SIZEOF ABREPARENTESES <type_name> FECHAPARENTESES
+	;
+
+<unary_operator>
+	::= ECOMERCIAL
+	| ASTERISCO
+	| MAIS
+	| MENOS
+	| TIO
+	| EXCLAMACAO
+	;
+	
+<cast_expression>
+	::= <unary_expression>
+	| ABREPARENTESES <type_name> FECHAPARENTESES <cast_expression>
+	;
+	
+<multiplicative_expression>
+	::= <cast_expression>
+	| <multiplicative_expression> ASTERISCO <cast_expression>
+	| <multiplicative_expression> BARRA <cast_expression>
+	| <multiplicative_expression> PORCENTO <cast_expression>
+	;	
+	
+<additive_expression>
+	::= <multiplicative_expression>
+	| <additive_expression> MAIS <multiplicative_expression>
+	| <additive_expression> MENOS <multiplicative_expression>
+	;
+
+<shift_expression>
+	::= <additive_expression>
+	| <shift_expression> LEFT_OP <additive_expression>
+	| <shift_expression> RIGHT_OP <additive_expression>
+	;
+
+<relational_expression>
+	::= <shift_expression>
+	| <relational_expression> MENORQUE <shift_expression>
+	| <relational_expression> MAIORQUE <shift_expression>
+	| <relational_expression> LE_OP <shift_expression>
+	| <relational_expression> GE_OP <shift_expression>
+	;
+	
+<equality_expression>
+	::= <relational_expression>
+	| <equality_expression> EQ_OP <relational_expression>
+	| <equality_expression> NE_OP <relational_expression>
+	;
+
+<and_expression>
+	::= <equality_expression>
+	| <and_expression> ECOMERCIAL <equality_expression>
+	;
+	
+<exclusive_or_expression>
+	::= <and_expression>
+	| <exclusive_or_expression> CIRCUNFLEXO <and_expression>
+	;
+	
+<inclusive_or_expression>
+	::= <exclusive_or_expression>
+	| <inclusive_or_expression> PIPELINE <exclusive_or_expression>
+	;
+
+<logical_and_expression>
+	::= <inclusive_or_expression>
+	| <logical_and_expression> AND_OP <inclusive_or_expression>
+	;
+	
+<logical_or_expression>
+	::= <logical_and_expression>
+	| <logical_or_expression> OR_OP <logical_and_expression>
+	;
+	
+<conditional_expression>
+	::= <logical_or_expression>
+	| <logical_or_expression> INTERROGACAO <expression> DOISPONTOS <conditional_expression>
+	;
+
+<assignment_expression>
+	::= <conditional_expression>
+	| <unary_expression> <assignment_operator> <assignment_expression>
+	;
+
+<assignment_operator>
+	::= IGUAL
+	| MUL_ASSIGN
+	| DIV_ASSIGN
+	| MOD_ASSIGN
+	| ADD_ASSIGN
+	| SUB_ASSIGN
+	| LEFT_ASSIGN
+	| RIGHT_ASSIGN
+	| AND_ASSIGN
+	| XOR_ASSIGN
+	| OR_ASSIGN
+	;
+	
+<expression>
+	::= <assignment_expression>
+	| <expression> VIRGULA <assignment_expression>
+	;
+	
+<constant_expression>
+	::= <conditional_expression>
+	;
+	
+<declaration>
+	::= <declaration_specifiers> PONTOEVIRGULA
+	| <declaration_specifiers> <init_declarator_list> PONTOEVIRGULA
+	;
+
+<declaration_specifiers>
+	::= <storage_class_specifier>
+	| <storage_class_specifier> <declaration_specifiers>
+	| <type_specifier>
+	| <type_specifier> <declaration_specifiers>
+	| <type_qualifier>
+	| <type_qualifier> <declaration_specifiers>
+	;
+
+<init_declarator_list>
+	::= <init_declarator>
+	| <init_declarator_list> VIRGULA <init_declarator>
+	;
+
+<init_declarator>
+	::= <declarator>
+	| <declarator> IGUAL <initializer>
+	;
+
+<storage_class_specifier>
+	::= TYPEDEF
+	| EXTERN
+	| STATIC
+	| AUTO
+	| REGISTER
+	;
+
+<type_specifier>
+	::= VOID
+	| CHAR
+	| SHORT
+	| INT
+	| LONG
+	| FLOAT
+	| DOUBLE
+	| SIGNED
+	| UNSIGNED
+	| <struct_or_union_specifier>
+	| <enum_specifier>
+	| <type_name>
+	;
+
+<struct_or_union_specifier>
+	::= <struct_or_union> IDENTIFIER ABRECHAVES <struct_declaration_list> FECHACHAVES
+	| <struct_or_union> ABRECHAVES <struct_declaration_list> FECHACHAVES
+	| <struct_or_union> IDENTIFIER
+	;
+
+<struct_or_union>
+	::= STRUCT
+	| UNION
+	;
+
+<struct_declaration_list>
+	::= <struct_declaration>
+	| <struct_declaration_list> <struct_declaration>
+
+
+<struct_declaration>
+	::= <specifier_qualifier_list> <struct_declarator_list> PONTOEVIRGULA
+	;
+
+<specifier_qualifier_list>
+	::= <type_specifier> <specifier_qualifier_list>>
+	| <type_specifier>
+	| <type_qualifier> <specifier_qualifier_list>
+	| <type_qualifier>
+	;
+
+<struct_declarator_list>
+	::= <struct_declarator>
+	| <struct_declarator_list> VIRGULA <struct_declarator>
+	;
+
+<struct_declarator>
+	::= <declarator>
+	| DOISPONTOS <constant_expression>
+	| <declarator> DOISPONTOS <constant_expression>
+	;
+
+<enum_specifier>
+	::= ENUM ABRECHAVES <enumerator_list> FECHACHAVES
+	| ENUM IDENTIFIER ABRECHAVES <enumerator_list> FECHACHAVES>
+	| ENUM IDENTIFIER
+	;
+
+<enumerator_list>
+	::= <enumerator>
+	| <enumerator_list> VIRGULA <enumerator>
+	;
+
+<enumerator>
+	::= IDENTIFIER
+	| IDENTIFIER IGUAL <constant_expression>
+	;
+
+<type_qualifier>
+	::= CONST
+	| VOLATILE
+	;
+
+<declarator>
+	::= <pointer> <direct_declarator>
+	| <direct_declarator>
+	;
+
+<direct_declarator>
+	::= IDENTIFIER
+	| ABREPARENTESES <declarator> FECHAPARENTESES
+	| <direct_declarator> ABRECOCHETES <constant_expression> FECHACOCHETES
+	| <direct_declarator> ABRECOCHETES FECHACOCHETES
+	| <direct_declarator> ABREPARENTESES <parameter_type_list> FECHAPARENTESES
+	| <direct_declarator> ABREPARENTESES <identifier_list> FECHAPARENTESES
+	| <direct_declarator> ABREPARENTESES FECHAPARENTESES
+	;
+
+<pointer>
+	::= ASTERISCO
+	| ASTERISCO <type_qualifier_list>
+	| ASTERISCO <pointer>
+	| ASTERISCO <type_qualifier_list> <pointer>
+	;
+
+<type_qualifier_list>
+	::= <type_qualifier>
+	| <type_qualifier>_list <type_qualifier>
+	;
+
+
+<parameter_type_list>
+	::= <parameter_list>
+	| <parameter_list> VIRGULA ELLIPSIS
+	;
+
+<parameter_list>
+	::= <parameter_declaration>
+	| <parameter_list> VIRGULA <parameter_declaration>
+	;
+
+<parameter_declaration>
+	::= <declaration_specifiers> <declarator>
+	| <declaration_specifiers> <abstract_declarator>
+	| <declaration_specifiers>
+	;
+
+<identifier_list>
+	::= IDENTIFIER
+	| <identifier_list> VIRGULA IDENTIFIER
+	;
+
+<type_name>
+	::= <specifier_qualifier_list>
+	| <specifier_qualifier_list> <abstract_declarator>
+	;
+
+<abstract_declarator>
+	::= <pointer>
+	| <direct_abstract_declarator>
+	| <pointer> <direct_abstract_declarator>
+	;
+
+<direct_abstract_declarator>
+	::= ABREPARENTESES <abstract_declarator> FECHAPARENTESES
+	| ABRECOCHETES FECHACOCHETES
+	| ABRECOCHETES <constant_expression> FECHACOCHETES
+	| <direct_abstract_declarator> ABRECOCHETES FECHACOCHETES
+	| <direct_abstract_declarator> ABRECOCHETES <constant_expression> FECHACOCHETES
+	| ABREPARENTESES FECHAPARENTESES
+	| ABREPARENTESES <parameter_type_list> FECHAPARENTESES
+	| <direct_abstract_declarator> ABREPARENTESES FECHAPARENTESES
+	| <direct_abstract_declarator> ABREPARENTESES <parameter_type_list> FECHAPARENTESES
+	;
+
+<initializer>
+	::= <assignment_expression>
+	| ABRECHAVES <initializer_list> FECHACHAVES
+	| ABRECHAVES <initializer_list> VIRGULA FECHACHAVES
+	;
+
+<initializer_list>
+	::= <initializer>
+	| <initializer_list> VIRGULA <initializer>
+	;
+
+<statement>
+	::= <labeled_statement>
+	| <compound_statement>
+	| <expression_statement>
+	| <selection_statement>
+	| <iteration_statement>
+	| <jump_statement>
+	;
+
+<labeled_statement>
+	::= IDENTIFIER DOISPONTOS <statement>
+	| CASE <constant_expression> DOISPONTOS <statement>
+	| DEFAULT DOISPONTOS <statement>
+	;
+
+<compound_statement>
+	::= ABRECHAVES FECHACHAVES
+	| ABRECHAVES <statement_list> FECHACHAVES
+	| ABRECHAVES <declaration_list> FECHACHAVES
+	| ABRECHAVES <declaration_list> <statement_list> FECHACHAVES
+	;
+
+<declaration_list>
+	::= declaration
+	| <declaration_list> declaration
+	;
+
+<statement_list>
+	::= <statement>
+	| <statement_list> <statement>
+	;
+
+<expression_statement>
+	::= PONTOEVIRGULA
+	| <expression> PONTOEVIRGULA
+	;
+
+<selection_statement>
+	::= IF ABREPARENTESES <expression> FECHAPARENTESES <statement>
+	| IF ABREPARENTESES <expression> FECHAPARENTESES <statement> ELSE <statement>
+	| SWITCH ABREPARENTESES <expression> FECHAPARENTESES <statement>
+	;
+
+
+<iteration_statement>
+	::= WHILE ABREPARENTESES <expression> FECHAPARENTESES <statement>
+	| DO <statement> WHILE ABREPARENTESES <expression> FECHAPARENTESES PONTOEVIRGULA
+	| FOR ABREPARENTESES <expression_statement> <expression_statement> FECHAPARENTESES <statement>
+	| FOR ABREPARENTESES <expression_statement> <expression_statement> <expression> FECHAPARENTESES <statement>
+	;
+
+<jump_statement>
+	::= GOTO IDENTIFIER PONTOEVIRGULA
+	| CONTINUE PONTOEVIRGULA
+	| BREAK PONTOEVIRGULA
+	| RETURN PONTOEVIRGULA
+	| RETURN <expression> PONTOEVIRGULA
+	;
+
+<translation_unit>
+	::= <external_declaration>
+	| <translation_unit> <external_declaration>
+	;
+
+<external_declaration>
+	::= <function_definition>
+	| declaration
+	;
+
+<function_definition>
+	::= <declaration_specifiers> <declarator> <declaration_list> <compound_statement>
+	| <declaration_specifiers> <declarator> <compound_statement>
+	| <declarator> <declaration_list> <compound_statement>
+	| <declarator> <compound_statement>
+	;
