@@ -110,24 +110,6 @@ non terminal primary_expression,
 			 function_definition,
 			 multiplicative_expression;
 
-/* Precedencias */
-
-precedence left VIRGULA;
-precedence right IGUAL, ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN, LEFT_ASSIGN, RIGHT_ASSIGN, AND_ASSIGN, XOR_ASSIGN, OR_ASSIGN, MOD_ASSIGN;
-precedence right DOISPONTOS, INTERROGACAO;
-precedence left OR_OP;
-precedence left AND_OP;
-precedence left PIPELINE;
-precedence left CIRCUNFLEXO;
-precedence left ECOMERCIAL;
-precedence left EQ_OP, NE_OP;
-precedence left MAIORQUE, MENORQUE, GE_OP, LE_OP;
-precedence left RIGHT_OP, LEFT_OP;
-precedence left MAIS, MENOS;
-precedence left ASTERISCO, BARRA, PORCENTO;
-precedence right EXCLAMACAO, TIO, INC_OP, DEC_OP, PONTO, MENOS, ASTERISCO, ECOMERCIAL;
-precedence left ABREPARENTESES, FECHAPARENTESES, ABRECOCHETES, FECHACOCHETES, PTR_OP;
-
 /* Regra inicial */
 
 start with translation_unit;
