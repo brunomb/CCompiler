@@ -1,6 +1,7 @@
 import java_cup.runtime.*;
 
-/*Este codigo foi reusado. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada.*/
+/* Este codigo foi reusado do exemplo de Daniel. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada. */
+
 parser code {:
     
     public void report_error(String message, Object info) {
@@ -31,9 +32,11 @@ parser code {:
         report_error(message, info);
         System.exit(1);
     }
+    
 :};
 
-/*Aqui estao listado todos os simbolos terminais da nossa gramatica*/
+/* Aqui estao listados todos os simbolos terminais da gramatica */
+
 terminal AUTO, BREAK, CASE, CHAR, CONST, CONTINUE, DEFAULT, DO, DOUBLE, ELSE, ENUM, EXTERN, FLOAT, FOR, GOTO, IF, INT,
 LONG, REGISTER, RETURN, SHORT, SIGNED, SIZEOF, STATIC, STRUCT, SWITCH, TYPEDEF, UNION, UNSIGNED, VOID, VOLATILE, WHILE,
 ELLIPSIS, RIGHT_ASSIGN, LEFT_ASSIGN, ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN, MOD_ASSIGN, AND_ASSIGN, XOR_ASSIGN,
@@ -41,7 +44,8 @@ OR_ASSIGN, RIGHT_OP, LEFT_OP, INC_OP, DEC_OP, PTR_OP, AND_OP, OR_OP, LE_OP, GE_O
 FECHACHAVES, VIRGULA, DOISPONTOS, IGUAL, ABREPARENTESES, FECHAPARENTESES, ABRECOCHETES, FECHACOCHETES, PONTO, ECOMERCIAL,
 EXCLAMACAO, TIO, MENOS, MAIS, ASTERISCO, BARRA, PORCENTO, MENORQUE, MAIORQUE, CIRCUNFLEXO, PIPELINE, INTERROGACAO, CONSTANT, IDENTIFIER, STRING_LITERAL ; /* CONSTANT, IDENTIFIER, STRING_LITERAL estão errados, falta definir! */
 
-/*Aqui estao todos os simbolos nao terminais da gramatica*/
+/* Aqui estao listados todos os simbolos nao terminais da gramatica */
+
 non terminal primary_expression,
 		 	 postfix_expression,
 		 	 argument_expression_list,
@@ -106,11 +110,29 @@ non terminal primary_expression,
 			 function_definition,
 			 multiplicative_expression;
 
+/* Precedencias */
+
+precedence left VIRGULA;
+precedence right IGUAL, ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN, LEFT_ASSIGN, RIGHT_ASSIGN, AND_ASSIGN, XOR_ASSIGN, OR_ASSIGN, MOD_ASSIGN;
+precedence right DOISPONTOS, INTERROGACAO;
+precedence left OR_OP;
+precedence left AND_OP;
+precedence left PIPELINE;
+precedence left CIRCUNFLEXO;
+precedence left ECOMERCIAL;
+precedence left EQ_OP, NE_OP;
+precedence left MAIORQUE, MENORQUE, GE_OP, LE_OP;
+precedence left RIGHT_OP, LEFT_OP;
+precedence left MAIS, MENOS;
+precedence left ASTERISCO, BARRA, PORCENTO;
+precedence right EXCLAMACAO, TIO, INC_OP, DEC_OP, PONTO, MENOS, ASTERISCO, ECOMERCIAL;
+precedence left ABREPARENTESES, FECHAPARENTESES, ABRECOCHETES, FECHACOCHETES, PTR_OP;
+
+/* Regra inicial */
+
 start with translation_unit;
 
-/*Aqui estao as regras de producao*/
-
-/*Regras de C*/
+/* Regras da gramatica */
 
 primary_expression 
 	::= IDENTIFIER 

@@ -23,8 +23,6 @@ import cup.sym;
    	   
 %}
 
-
-
 numero = [0-9]+
 letra = [a-zA-Z]
 hexa = [a-fA-F0-9]
@@ -122,10 +120,10 @@ id = ({letra} | _)({letra} | {numero} | _)*
 "|"	{ return symbol(sym.PIPELINE, new String(yytext())); }
 "?"	{ return symbol(sym.INTERROGACAO, new String(yytext())}
 {id} { return symbol(sym.IDENTIFIER, new String(yytext())}
-/* Duvidas aqui \/ */
 
-[ \v\n\t\f] { }
+[ \v\n\t\f] { } /* Quebra de linhas e espaço em branco. */
 
+/* CONSTAT */
 0[xX]{hexa}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
 0{numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
@@ -134,9 +132,10 @@ letra?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}*"."{numero}+({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
 {numero}+"."{numero}*({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
 
+/* STRING LITERAL */
 \"([^\\\"]|\\.)*\" { return symbol(sym.STRING_LITERAL, new String(yytext())}
 
-
+/* INCLUDE */
 "#include" { }
 
 <incl>[ \t]*      { }/* eat the whitespace */
@@ -144,13 +143,10 @@ letra?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
 <incl>[^ \t\n]+   { }
 <incl>">"         { yybegin(0); } /* got the include file name */
 
+/* COMENTARIO */
 "/*"              { yybegin(comments); }
 
 <comments>[^*\n]+   {}
 <comments>"*"+[^*/\n]*   {}
 <comments>\n        {yyline++;}
 <comments>"*"+"/"      {yybegin(0);}
-
-
-/* Duvidas aqui /\ */
-/* <<EOF>> { return symbol(sym.EOF); } */
