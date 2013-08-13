@@ -7,142 +7,156 @@ import cup.sym;
 
 %public
 %class LexicalAnalysisC
-%column
+
+%unicode
+
 %line
+%column
+
 %cup
+%cupdebug
 
 %{
-	   
-	   private Symbol symbol(int type) {
-		   return new Symbol(type, yyline, yycolumn);
-   	   }
-   	
- 	   private Symbol symbol(int type, Object val) {
-		   return new Symbol(type, yyline, yycolumn, val);
-   	   }
-   	   
+       
+       private Symbol symbol(int type) {
+           return new Symbol(type, yyline, yycolumn);
+          }
+       
+        private Symbol symbol(int type, Object val) {
+           return new Symbol(type, yyline, yycolumn, val);
+          }
+          
 %}
 
-numero = [0-9]+
-letra = [a-zA-Z]
+LineTerminator = \r|\n|\r\n
+WhiteSpace = {LineTerminator} | [ \t\f]
+
+Numero = [0-9]+
+Letra = [a-zA-Z]
 hexa = [a-fA-F0-9]
-Exp = [Ee][+-]?{numero}+
+Exp = [Ee][+-]?{Numero}+
 FS = (f|F|l|L)
 IS = (u|U|l|L)*
 
-id = ({letra} | _)({letra} | {numero} | _)*
+id = ({Letra} | _)({Letra} | {Numero} | _)*
 
-%x comments incl
+%x COMMENTS
 
 %%
 
-/*Aqui estao definidos os possiveis tokens que podem ser encontrados numa calculadora simples*/
+<YYINITIAL> {
+    
+    /* COMENTARIOS */
+    "/*"                                      { yybegin(COMMENTS); }
+    "//".*                                    { /* consume //-comment */ }
+    
+    /* KEYWORDS */
+    "break"                                   { return symbol(sym.BREAK, new String(yytext())); }
+    "auto"                                    { return symbol(sym.AUTO, new String(yytext())); }
+    "break"                                   { return symbol(sym.BREAK, new String(yytext())); }
+    "case"                                    { return symbol(sym.CASE, new String(yytext())); }
+    "char"                                    { return symbol(sym.CHAR, new String(yytext())); }
+    "const"                                   { return symbol(sym.CONST, new String(yytext())); }
+    "continue"                                { return symbol(sym.CONTINUE, new String(yytext())); }
+    "default"                                 { return symbol(sym.DEFAULT, new String(yytext())); }
+    "do"                                      { return symbol(sym.DO, new String(yytext())); }
+    "double"                                  { return symbol(sym.DOUBLE, new String(yytext())); }
+    "else"                                    { return symbol(sym.ELSE, new String(yytext())); }
+    "enum"                                    { return symbol(sym.ENUM, new String(yytext())); }
+    "extern"                                  { return symbol(sym.EXTERN, new String(yytext())); }
+    "float"                                   { return symbol(sym.FLOAT, new String(yytext())); }
+    "for"                                     { return symbol(sym.FOR, new String(yytext())); }
+    "goto"                                    { return symbol(sym.GOTO, new String(yytext())); }
+    "if"                                      { return symbol(sym.IF, new String(yytext())); }
+    "int"                                     { return symbol(sym.INT, new String(yytext())); }
+    "long"                                    { return symbol(sym.LONG, new String(yytext())); }
+    "register"                                { return symbol(sym.REGISTER, new String(yytext())); }
+    "return"                                  { return symbol(sym.RETURN, new String(yytext())); }
+    "short"                                   { return symbol(sym.SHORT, new String(yytext())); }
+    "signed"                                  { return symbol(sym.SIGNED, new String(yytext())); }
+    "sizeof"                                  { return symbol(sym.SIZEOF, new String(yytext())); }
+    "static"                                  { return symbol(sym.STATIC, new String(yytext())); }
+    "struct"                                  { return symbol(sym.STRUCT, new String(yytext())); }
+    "switch"                                  { return symbol(sym.SWITCH, new String(yytext())); }
+    "typedef"                                 { return symbol(sym.TYPEDEF, new String(yytext())); }
+    "union"                                   { return symbol(sym.UNION, new String(yytext())); }
+    "unsigned"                                { return symbol(sym.UNSIGNED, new String(yytext())); }
+    "void"                                    { return symbol(sym.VOID, new String(yytext())); }
+    "volatile"                                { return symbol(sym.VOLATILE, new String(yytext())); }
+    "while"                                   { return symbol(sym.WHILE, new String(yytext())); }
+    
+    
+    "..."                                     { return symbol(sym.ELLIPSIS, new String(yytext())); }
+    ">>="                                     { return symbol(sym.RIGHT_ASSIGN, new String(yytext())); }
+    "<<="                                     { return symbol(sym.LEFT_ASSIGN, new String(yytext())); }
+    "+="                                      { return symbol(sym.ADD_ASSIGN, new String(yytext())); }
+    "-="                                      { return symbol(sym.SUB_ASSIGN, new String(yytext())); }
+    "*="                                      { return symbol(sym.MUL_ASSIGN, new String(yytext())); }
+    "/="                                      { return symbol(sym.DIV_ASSIGN, new String(yytext())); }
+    "%="                                      { return symbol(sym.MOD_ASSIGN, new String(yytext())); }
+    "&="                                      { return symbol(sym.AND_ASSIGN, new String(yytext())); }
+    "^="                                      { return symbol(sym.XOR_ASSIGN, new String(yytext())); }
+    "|="                                      { return symbol(sym.OR_ASSIGN, new String(yytext())); }
+    ">>"                                      { return symbol(sym.RIGHT_OP, new String(yytext())); }
+    "<<"                                      { return symbol(sym.LEFT_OP, new String(yytext())); }
+    "++"                                      { return symbol(sym.INC_OP, new String(yytext())); }
+    "--"                                      { return symbol(sym.DEC_OP, new String(yytext())); }
+    "->"                                      { return symbol(sym.PTR_OP, new String(yytext())); }
+    "&&"                                      { return symbol(sym.AND_OP, new String(yytext())); }
+    "||"                                      { return symbol(sym.OR_OP, new String(yytext())); }
+    "<="                                      { return symbol(sym.LE_OP, new String(yytext())); }
+    ">="                                      { return symbol(sym.GE_OP, new String(yytext())); }
+    "=="                                      { return symbol(sym.EQ_OP, new String(yytext())); }
+    "!="                                      { return symbol(sym.NE_OP, new String(yytext())); }
+    ";"                                       { return symbol(sym.PONTOEVIRGULA, new String(yytext())); }
+    ("{"|"<%")                                { return symbol(sym.ABRECHAVES, new String(yytext())); }
+    ("}"|"%>")                                { return symbol(sym.FECHACHAVES, new String(yytext())); }
+    ","                                       { return symbol(sym.VIRGULA, new String(yytext())); }
+    ":"                                       { return symbol(sym.DOISPONTOS, new String(yytext())); }
+    "="                                       { return symbol(sym.IGUAL, new String(yytext())); }
+    "("                                       { return symbol(sym.ABREPARENTESES, new String(yytext())); }
+    ")"                                       { return symbol(sym.FECHAPARENTESES, new String(yytext())); }
+    ("["|"<:")                                { return symbol(sym.ABRECOCHETES, new String(yytext())); }
+    ("]"|":>")                                { return symbol(sym.FECHACOCHETES, new String(yytext())); }
+    "."                                       { return symbol(sym.PONTO, new String(yytext())); }
+    "&"                                       { return symbol(sym.ECOMERCIAL, new String(yytext())); }
+    "!"                                       { return symbol(sym.EXCLAMACAO, new String(yytext())); }
+    "~"                                       { return symbol(sym.TIO, new String(yytext())); }
+    "-"                                       { return symbol(sym.MENOS, new String(yytext())); }
+    "+"                                       { return symbol(sym.MAIS, new String(yytext())); }
+    "*"                                       { return symbol(sym.ASTERISCO, new String(yytext())); }
+    "/"                                       { return symbol(sym.BARRA, new String(yytext())); }
+    "%"                                       { return symbol(sym.PORCENTO, new String(yytext())); }
+    "<"                                       { return symbol(sym.MENORQUE, new String(yytext())); }
+    ">"                                       { return symbol(sym.MAIORQUE, new String(yytext())); }
+    "^"                                       { return symbol(sym.CIRCUNFLEXO, new String(yytext())); }
+    "|"                                       { return symbol(sym.PIPELINE, new String(yytext())); }
+    "?"                                       { return symbol(sym.INTERROGACAO, new String(yytext())}
+    
+    {id}                                      { return symbol(sym.IDENTIFIER, new String(yytext())}
+    
+    /* whitespace */
+    {WhiteSpace}                              { /* ignore */ }
+    
+    /* CONSTAT */
+    0[xX]{hexa}+{IS}?                         { return symbol(sym.CONSTANT, new String(yytext())}
+    0{Numero}+{IS}?                           { return symbol(sym.CONSTANT, new String(yytext())}
+    {Numero}+{IS}?                            { return symbol(sym.CONSTANT, new String(yytext())}
+    Letra?'(\\.|[^\\'])+'                     { return symbol(sym.CONSTANT, new String(yytext())}
+    {Numero}+{Exp}{FS}?                       { return symbol(sym.CONSTANT, new String(yytext())}
+    {Numero}*"."{Numero}+({Exp})?{FS}?        { return symbol(sym.CONSTANT, new String(yytext())}
+    {Numero}+"."{Numero}*({Exp})?{FS}?        { return symbol(sym.CONSTANT, new String(yytext())}
+    
+    /* STRING LITERAL */
+    \"([^\\\"]|\\.)*\"                        { return symbol(sym.STRING_LITERAL, new String(yytext())}
+    
+}
 
-/*adicionado de C*/
+<COMMENTS> {
+    [^*\n]+                                   { }
+    "*"+[^*/\n]*                              { }
+    \n                                        {yyline++;}
+    "*"+"/"                                   {yybegin(0);}
+}
 
-"break" { return symbol(sym.BREAK, new String(yytext())); }
-"auto" { return symbol(sym.AUTO, new String(yytext())); }
-"break" { return symbol(sym.BREAK, new String(yytext())); }
-"case" { return symbol(sym.CASE, new String(yytext())); }
-"char" { return symbol(sym.CHAR, new String(yytext())); }
-"const" { return symbol(sym.CONST, new String(yytext())); }
-"continue" { return symbol(sym.CONTINUE, new String(yytext())); }
-"default" { return symbol(sym.DEFAULT, new String(yytext())); }
-"do" { return symbol(sym.DO, new String(yytext())); }
-"double" { return symbol(sym.DOUBLE, new String(yytext())); }
-"else" { return symbol(sym.ELSE, new String(yytext())); }
-"enum" { return symbol(sym.ENUM, new String(yytext())); }
-"extern" { return symbol(sym.EXTERN, new String(yytext())); }
-"float" { return symbol(sym.FLOAT, new String(yytext())); }
-"for" { return symbol(sym.FOR, new String(yytext())); }
-"goto" { return symbol(sym.GOTO, new String(yytext())); }
-"if" { return symbol(sym.IF, new String(yytext())); }
-"int" { return symbol(sym.INT, new String(yytext())); }
-"long" { return symbol(sym.LONG, new String(yytext())); }
-"register" { return symbol(sym.REGISTER, new String(yytext())); }
-"return" { return symbol(sym.RETURN, new String(yytext())); }
-"short" { return symbol(sym.SHORT, new String(yytext())); }
-"signed" { return symbol(sym.SIGNED, new String(yytext())); }
-"sizeof" { return symbol(sym.SIZEOF, new String(yytext())); }
-"static" { return symbol(sym.STATIC, new String(yytext())); }
-"struct" { return symbol(sym.STRUCT, new String(yytext())); }
-"switch" { return symbol(sym.SWITCH, new String(yytext())); }
-"typedef" { return symbol(sym.TYPEDEF, new String(yytext())); }
-"union" { return symbol(sym.UNION, new String(yytext())); }
-"unsigned" { return symbol(sym.UNSIGNED, new String(yytext())); }
-"void" { return symbol(sym.VOID, new String(yytext())); }
-"volatile" { return symbol(sym.VOLATILE, new String(yytext())); }
-"while" { return symbol(sym.WHILE, new String(yytext())); }
-"..." { return symbol(sym.ELLIPSIS, new String(yytext())); }
-">>=" { return symbol(sym.RIGHT_ASSIGN, new String(yytext())); }
-"<<=" { return symbol(sym.LEFT_ASSIGN, new String(yytext())); }
-"+=" { return symbol(sym.ADD_ASSIGN, new String(yytext())); }
-"-=" { return symbol(sym.SUB_ASSIGN, new String(yytext())); }
-"*=" { return symbol(sym.MUL_ASSIGN, new String(yytext())); }
-"/=" { return symbol(sym.DIV_ASSIGN, new String(yytext())); }
-"%=" { return symbol(sym.MOD_ASSIGN, new String(yytext())); }
-"&=" { return symbol(sym.AND_ASSIGN, new String(yytext())); }
-"^=" { return symbol(sym.XOR_ASSIGN, new String(yytext())); }
-"|=" { return symbol(sym.OR_ASSIGN, new String(yytext())); }
-">>" { return symbol(sym.RIGHT_OP, new String(yytext())); }
-"<<" { return symbol(sym.LEFT_OP, new String(yytext())); }
-"++" { return symbol(sym.INC_OP, new String(yytext())); }
-"--" { return symbol(sym.DEC_OP, new String(yytext())); }
-"->" { return symbol(sym.PTR_OP, new String(yytext())); }
-"&&" { return symbol(sym.AND_OP, new String(yytext())); }
-"||" { return symbol(sym.OR_OP, new String(yytext())); }
-"<=" { return symbol(sym.LE_OP, new String(yytext())); }
-">=" { return symbol(sym.GE_OP, new String(yytext())); }
-"==" { return symbol(sym.EQ_OP, new String(yytext())); }
-"!=" { return symbol(sym.NE_OP, new String(yytext())); }
-";"	{ return symbol(sym.PONTOEVIRGULA, new String(yytext())); }
-("{"|"<%") { return symbol(sym.ABRECHAVES, new String(yytext())); }
-("}"|"%>") { return symbol(sym.FECHACHAVES, new String(yytext())); }
-"," { return symbol(sym.VIRGULA, new String(yytext())); }
-":" { return symbol(sym.DOISPONTOS, new String(yytext())); }
-"=" { return symbol(sym.IGUAL, new String(yytext())); }
-"("	{ return symbol(sym.ABREPARENTESES, new String(yytext())); }
-")"	{ return symbol(sym.FECHAPARENTESES, new String(yytext())); }
-("["|"<:") { return symbol(sym.ABRECOCHETES, new String(yytext())); }
-("]"|":>") { return symbol(sym.FECHACOCHETES, new String(yytext())); }
-"."	{ return symbol(sym.PONTO, new String(yytext())); }
-"&"	{ return symbol(sym.ECOMERCIAL, new String(yytext())); }
-"!"	{ return symbol(sym.EXCLAMACAO, new String(yytext())); }
-"~"	{ return symbol(sym.TIO, new String(yytext())); }
-"-"	{ return symbol(sym.MENOS, new String(yytext())); }
-"+"	{ return symbol(sym.MAIS, new String(yytext())); }
-"*"	{ return symbol(sym.ASTERISCO, new String(yytext())); }
-"/"	{ return symbol(sym.BARRA, new String(yytext())); }
-"%"	{ return symbol(sym.PORCENTO, new String(yytext())); }
-"<"	{ return symbol(sym.MENORQUE, new String(yytext())); }
-">"	{ return symbol(sym.MAIORQUE, new String(yytext())); }
-"^"	{ return symbol(sym.CIRCUNFLEXO, new String(yytext())); }
-"|"	{ return symbol(sym.PIPELINE, new String(yytext())); }
-"?"	{ return symbol(sym.INTERROGACAO, new String(yytext())}
-{id} { return symbol(sym.IDENTIFIER, new String(yytext())}
-
-[ \v\n\t\f] { } /* Quebra de linhas e espaço em branco. */
-
-/* CONSTAT */
-0[xX]{hexa}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
-0{numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
-{numero}+{IS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
-letra?'(\\.|[^\\'])+'	{ return symbol(sym.CONSTANT, new String(yytext())}
-{numero}+{Exp}{FS}?		{ return symbol(sym.CONSTANT, new String(yytext())}
-{numero}*"."{numero}+({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
-{numero}+"."{numero}*({Exp})?{FS}?	{ return symbol(sym.CONSTANT, new String(yytext())}
-
-/* STRING LITERAL */
-\"([^\\\"]|\\.)*\" { return symbol(sym.STRING_LITERAL, new String(yytext())}
-
-/* COMENTARIO */
-"/*"              { yybegin(comments); }
-
-<comments>[^*\n]+   {}
-<comments>"*"+[^*/\n]*   {}
-<comments>\n        {yyline++;}
-<comments>"*"+"/"      {yybegin(0);}
-
-
-/* Duvidas aqui /\ */
-/* <<EOF>> { return symbol(sym.EOF); } */
+<<EOF>>                                       { return symbol(sym.EOF); }
