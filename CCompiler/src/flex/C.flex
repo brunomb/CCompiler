@@ -131,24 +131,24 @@ id = ({Letra} | _)({Letra} | {Numero} | _)*
     ">"                                       { return symbol(sym.MAIORQUE, new String(yytext())); }
     "^"                                       { return symbol(sym.CIRCUNFLEXO, new String(yytext())); }
     "|"                                       { return symbol(sym.PIPELINE, new String(yytext())); }
-    "?"                                       { return symbol(sym.INTERROGACAO, new String(yytext())}
+    "?"                                       { return symbol(sym.INTERROGACAO, new String(yytext())); }
     
-    {id}                                      { return symbol(sym.IDENTIFIER, new String(yytext())}
+    {id}                                      { return symbol(sym.IDENTIFIER, new String(yytext())); }
     
     /* whitespace */
     {WhiteSpace}                              { /* ignore */ }
     
     /* CONSTAT */
-    0[xX]{hexa}+{IS}?                         { return symbol(sym.CONSTANT, new String(yytext())}
-    0{Numero}+{IS}?                           { return symbol(sym.CONSTANT, new String(yytext())}
-    {Numero}+{IS}?                            { return symbol(sym.CONSTANT, new String(yytext())}
-    Letra?'(\\.|[^\\'])+'                     { return symbol(sym.CONSTANT, new String(yytext())}
-    {Numero}+{Exp}{FS}?                       { return symbol(sym.CONSTANT, new String(yytext())}
-    {Numero}*"."{Numero}+({Exp})?{FS}?        { return symbol(sym.CONSTANT, new String(yytext())}
-    {Numero}+"."{Numero}*({Exp})?{FS}?        { return symbol(sym.CONSTANT, new String(yytext())}
+    0[xX]{hexa}+{IS}?                         { return symbol(sym.CONSTANT, new String(yytext())); }
+    0{Numero}+{IS}?                           { return symbol(sym.CONSTANT, new String(yytext())); }
+    {Numero}+{IS}?                            { return symbol(sym.CONSTANT, new String(yytext())); }
+    Letra?'(\\.|[^\\'])+'                     { return symbol(sym.CONSTANT, new String(yytext())); }
+    {Numero}+{Exp}{FS}?                       { return symbol(sym.CONSTANT, new String(yytext())); }
+    {Numero}*"."{Numero}+({Exp})?{FS}?        { return symbol(sym.CONSTANT, new String(yytext())); }
+    {Numero}+"."{Numero}*({Exp})?{FS}?        { return symbol(sym.CONSTANT, new String(yytext())); }
     
     /* STRING LITERAL */
-    \"([^\\\"]|\\.)*\"                        { return symbol(sym.STRING_LITERAL, new String(yytext())}
+    \"([^\\\"]|\\.)*\"                        { return symbol(sym.STRING_LITERAL, new String(yytext())); }
     
 }
 
