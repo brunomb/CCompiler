@@ -1,6 +1,7 @@
 import java_cup.runtime.*;
 import core.CheckTypes;
 import core.Node;
+import core.TabelaSimbolos;
 
 /* Este codigo foi reusado do exemplo de Daniel. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada. */
 
@@ -119,11 +120,11 @@ start with translation_unit;
 
 primary_expression 
 	::= IDENTIFIER:id
-	{: RESULT = "IDENTIFIER"; :}
+	{: Node n = new Node(id.toString(), "IDENTIFIER", null); RESULT = n; :}
 	| CONSTANT:cons
-	{: RESULT = cons; :}
+	{: Node n = new Node(cons.toString(), "CONSTANT", null); RESULT = n; :}
 	| STRING_LITERAL:str
-	{: RESULT = "STRING"; :}
+	{: Node n = new Node(str.toString(), "STRING", null); RESULT = n; :}
 	| ABREPARENTESES expression:exp FECHAPARENTESES
 	{: RESULT = exp; :}
 	;
@@ -250,7 +251,7 @@ assignment_expression
 	::= conditional_expression:co
 	{: RESULT = co; :}
 	| unary_expression:en assignment_operator:as assignment_expression:ase
-	{: System.out.println(en + " " + as + " " + ase); RESULT = ase; :}
+	{: System.out.println("Checktype:" + en + " " + as + " " + ase); CheckTypes.getInstance().checkAssignment(en, ase); RESULT = ase;  :}
 	;
 
 assignment_operator
@@ -289,27 +290,31 @@ constant_expression
 	
 declaration
 	::= declaration_specifiers PONTOEVIRGULA
-	| declaration_specifiers init_declarator_list PONTOEVIRGULA
+	| declaration_specifiers:ds init_declarator_list:in PONTOEVIRGULA
+	{: TabelaSimbolos.getInstance().addList(in.toString(), ds.toString()); :}
 	;
 
 declaration_specifiers
 	::= storage_class_specifier
 	| storage_class_specifier declaration_specifiers
 	| type_specifier:t
-	{: System.out.println(t); :}
+	{: RESULT = t; :}
 	| type_specifier:t declaration_specifiers
-	{: System.out.println(t); :}
+	{: RESULT = t; :}
 	| type_qualifier
 	| type_qualifier declaration_specifiers
 	;
 
 init_declarator_list
-	::= init_declarator
-	| init_declarator_list VIRGULA init_declarator
+	::= init_declarator:d
+	{: RESULT = d; :}
+	| init_declarator_list:i VIRGULA init_declarator:d
+	{: RESULT = i.toString() + ", " + d.toString(); :}
 	;
 
 init_declarator
-	::= declarator
+	::= declarator:d
+	{: RESULT = d; :}
 	| declarator IGUAL initializer
 	;
 
@@ -408,18 +413,27 @@ type_qualifier
 	;
 
 declarator
-	::= pointer direct_declarator
-	| direct_declarator
+	::= pointer direct_declarator:d
+	{: RESULT = d; :}
+	| direct_declarator:d
+	{: RESULT = d; :}
 	;
 
 direct_declarator
-	::= IDENTIFIER
-	| ABREPARENTESES declarator FECHAPARENTESES
-	| direct_declarator ABRECOCHETES constant_expression FECHACOCHETES
-	| direct_declarator ABRECOCHETES FECHACOCHETES
-	| direct_declarator ABREPARENTESES parameter_type_list FECHAPARENTESES
-	| direct_declarator ABREPARENTESES identifier_list FECHAPARENTESES
-	| direct_declarator ABREPARENTESES FECHAPARENTESES
+	::= IDENTIFIER:id
+	{: RESULT = id; :}
+	| ABREPARENTESES declarator:id FECHAPARENTESES
+	{: RESULT = id; :}
+	| direct_declarator:id ABRECOCHETES constant_expression FECHACOCHETES
+	{: RESULT = id; :}
+	| direct_declarator:id ABRECOCHETES FECHACOCHETES
+	{: RESULT = id; :}
+	| direct_declarator:id ABREPARENTESES parameter_type_list FECHAPARENTESES
+	{: RESULT = id; :}
+	| direct_declarator:id ABREPARENTESES identifier_list FECHAPARENTESES
+	{: RESULT = id; :}
+	| direct_declarator:id ABREPARENTESES FECHAPARENTESES
+	{: RESULT = id; :}
 	;
 
 pointer
