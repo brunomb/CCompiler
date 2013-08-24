@@ -1,4 +1,5 @@
-SET PATHSRC=C:\Users\Matheus\git\CCompiler\CCompiler\src
+SET PATHSRC=C:\Users\Bruno\Documents\GitHub\CCompiler\CCompiler\src
+:: SET PATHSRC= C:\Users\Matheus\git\CCompiler\CCompiler\src
 
 cd %PATHSRC%
 

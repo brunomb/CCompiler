@@ -6,10 +6,22 @@ public class CheckTypes {
 	
 	private CheckTypes() {}
 	
+	
+	public boolean checkAssignment(Object n1, Object n2) {
+//		return checkAssignment((Node) n1, (Node) n2);
+		return true;
+	}
+	
 	public boolean checkAssignment(Node n1, Node n2) {
     	if (!isIdentifier(n1)) {
+    		
+    		System.out.println("ERROR: " + n1.toString() + " is not IDENTIFIER.");
     		return false;
-    	} 
+    	} else if ( n1.getType() != n2.getType()) {
+    		
+    		System.out.println("ERROR: Types dont match; " + n1.toString() + " " + n2.toString());
+    		return false;
+    	}
     	
     	return true;
     }

@@ -3,11 +3,12 @@ package core;
 public class Node {
 	String lexema;
 	String type;
-	Node parent;
+	Node parent = null;
 	
 	public Node(String lexema, String type, Node parent) {
 		this.lexema = lexema;
 		this.type = type;
+		
 		this.parent = parent;
 	}
 
