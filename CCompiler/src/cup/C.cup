@@ -1,5 +1,6 @@
 import java_cup.runtime.*;
-import cup.CheckTypes;
+import core.CheckTypes;
+import core.Node;
 
 /* Este codigo foi reusado do exemplo de Daniel. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada. */
 
@@ -118,7 +119,7 @@ start with translation_unit;
 
 primary_expression 
 	::= IDENTIFIER:id
-	{: RESULT = id;:}
+	{: RESULT = "IDENTIFIER"; :}
 	| CONSTANT:cons
 	{: RESULT = cons; :}
 	| STRING_LITERAL:str
@@ -249,7 +250,7 @@ assignment_expression
 	::= conditional_expression:co
 	{: RESULT = co; :}
 	| unary_expression:en assignment_operator:as assignment_expression:ase
-	{: System.out.println(en + " " + as + " " + ase); RESULT = ase; CheckTypes.getInstance().checkAssignment(en, ase); :}
+	{: System.out.println(en + " " + as + " " + ase); RESULT = ase; :}
 	;
 
 assignment_operator
