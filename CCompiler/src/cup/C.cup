@@ -428,13 +428,8 @@ direct_declarator
 	{: RESULT = id; :}
 	| direct_declarator:id ABRECOCHETES FECHACOCHETES
 	{: RESULT = id; :}
-<<<<<<< HEAD
 	| direct_declarator:id ABREPARENTESES parameter_type_list:pl FECHAPARENTESES
 	{: RESULT = id + ", " + pl; :}
-=======
-	| direct_declarator:id ABREPARENTESES parameter_type_list FECHAPARENTESES
-	{: RESULT = id; :}
->>>>>>> aac2273d8ebd51cbe39c376111e2babe3f467774
 	| direct_declarator:id ABREPARENTESES identifier_list FECHAPARENTESES
 	{: RESULT = id; :}
 	| direct_declarator:id ABREPARENTESES FECHAPARENTESES
