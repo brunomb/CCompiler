@@ -1,4 +1,5 @@
 import java_cup.runtime.*;
+import cup.CheckTypes;
 
 /* Este codigo foi reusado do exemplo de Daniel. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada. */
 
@@ -32,7 +33,6 @@ parser code {:
         report_error(message, info);
         System.exit(1);
     }
-    
 :};
 
 /* Aqui estao listados todos os simbolos terminais da gramatica */
@@ -117,14 +117,19 @@ start with translation_unit;
 /* Regras da gramatica */
 
 primary_expression 
-	::= IDENTIFIER 
-	| CONSTANT 
-	| STRING_LITERAL 
-	| ABREPARENTESES expression FECHAPARENTESES
+	::= IDENTIFIER:id
+	{: RESULT = id;:}
+	| CONSTANT:cons
+	{: RESULT = cons; :}
+	| STRING_LITERAL:str
+	{: RESULT = "STRING"; :}
+	| ABREPARENTESES expression:exp FECHAPARENTESES
+	{: RESULT = exp; :}
 	;
 
 postfix_expression 
-	::= primary_expression 
+	::= primary_expression:pexp
+	{: RESULT = pexp; :}
 	| postfix_expression ABRECOCHETES expression FECHACOCHETES 
 	| postfix_expression ABREPARENTESES FECHAPARENTESES 
 	| postfix_expression ABREPARENTESES argument_expression_list FECHAPARENTESES
@@ -140,12 +145,14 @@ argument_expression_list
 	;
 	
 unary_expression
-	::= postfix_expression
+	::= postfix_expression:pexp
+	{: RESULT = pexp; :}
 	| INC_OP unary_expression
 	| DEC_OP unary_expression
 	| unary_operator cast_expression
 	| SIZEOF unary_expression
-	| SIZEOF ABREPARENTESES type_name FECHAPARENTESES
+	| SIZEOF ABREPARENTESES type_name:ty FECHAPARENTESES
+	{: RESULT = ty; :}
 	;
 
 unary_operator
@@ -158,31 +165,37 @@ unary_operator
 	;
 	
 cast_expression
-	::= unary_expression
-	| ABREPARENTESES type_name FECHAPARENTESES cast_expression
+	::= unary_expression:un
+	{: RESULT = un; :}
+	| ABREPARENTESES type_name:ty FECHAPARENTESES cast_expression
+	{: RESULT = ty; :}
 	;
 	
 multiplicative_expression
-	::= cast_expression
+	::= cast_expression:ca
+	{: RESULT = ca; :}
 	| multiplicative_expression ASTERISCO cast_expression
 	| multiplicative_expression BARRA cast_expression
 	| multiplicative_expression PORCENTO cast_expression
 	;	
 	
 additive_expression
-	::= multiplicative_expression
+	::= multiplicative_expression:mul
+	{: RESULT = mul; :}
 	| additive_expression MAIS multiplicative_expression
 	| additive_expression MENOS multiplicative_expression
 	;
 
 shift_expression
-	::= additive_expression
+	::= additive_expression:ad
+	{: RESULT = ad; :}
 	| shift_expression LEFT_OP additive_expression
 	| shift_expression RIGHT_OP additive_expression
 	;
 
 relational_expression
-	::= shift_expression
+	::= shift_expression:sh
+	{: RESULT = sh; :}
 	| relational_expression MENORQUE shift_expression
 	| relational_expression MAIORQUE shift_expression
 	| relational_expression LE_OP shift_expression
@@ -190,58 +203,78 @@ relational_expression
 	;
 	
 equality_expression
-	::= relational_expression
+	::= relational_expression:re
+	{: RESULT = re; :}
 	| equality_expression EQ_OP relational_expression
 	| equality_expression NE_OP relational_expression
 	;
 
 and_expression
-	::= equality_expression
+	::= equality_expression:eq
+	{: RESULT = eq; :}
 	| and_expression ECOMERCIAL equality_expression
 	;
 	
 exclusive_or_expression
-	::= and_expression
+	::= and_expression:an
+	{: RESULT = an; :}
 	| exclusive_or_expression CIRCUNFLEXO and_expression
 	;
 	
 inclusive_or_expression
-	::= exclusive_or_expression
+	::= exclusive_or_expression:ex
+	{: RESULT = ex; :}
 	| inclusive_or_expression PIPELINE exclusive_or_expression
 	;
 
 logical_and_expression
-	::= inclusive_or_expression
+	::= inclusive_or_expression:inc
+	{: RESULT = inc; :}
 	| logical_and_expression AND_OP inclusive_or_expression
 	;
 	
 logical_or_expression
-	::= logical_and_expression
+	::= logical_and_expression:lo
+	{: RESULT = lo; :}
 	| logical_or_expression OR_OP logical_and_expression
 	;
 	
 conditional_expression
-	::= logical_or_expression
+	::= logical_or_expression:lo
+	{: RESULT = lo; :}
 	| logical_or_expression INTERROGACAO expression DOISPONTOS conditional_expression
 	;
 	
 assignment_expression
-	::= conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	::= conditional_expression:co
+	{: RESULT = co; :}
+	| unary_expression:en assignment_operator:as assignment_expression:ase
+	{: System.out.println(en + " " + as + " " + ase); RESULT = ase; CheckTypes.getInstance().checkAssignment(en, ase); :}
 	;
 
 assignment_operator
-	::= IGUAL
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	| LEFT_ASSIGN
-	| RIGHT_ASSIGN
-	| AND_ASSIGN
-	| XOR_ASSIGN
-	| OR_ASSIGN
+	::= IGUAL:igu
+	{: RESULT = igu; :}
+	| MUL_ASSIGN:mul
+	{: RESULT = mul; :}
+	| DIV_ASSIGN:div
+	{: RESULT = div; :}
+	| MOD_ASSIGN:mod
+	{: RESULT = mod; :}
+	| ADD_ASSIGN:add
+	{: RESULT = add; :}
+	| SUB_ASSIGN:sub
+	{: RESULT = sub; :}
+	| LEFT_ASSIGN:left
+	{: RESULT = left; :}
+	| RIGHT_ASSIGN:rig
+	{: RESULT = rig; :}
+	| AND_ASSIGN:an
+	{: RESULT = an; :}
+	| XOR_ASSIGN:xo
+	{: RESULT = xo; :}
+	| OR_ASSIGN:o
+	{: RESULT = o; :}
 	;
 	
 expression
@@ -261,8 +294,10 @@ declaration
 declaration_specifiers
 	::= storage_class_specifier
 	| storage_class_specifier declaration_specifiers
-	| type_specifier
-	| type_specifier declaration_specifiers
+	| type_specifier:t
+	{: System.out.println(t); :}
+	| type_specifier:t declaration_specifiers
+	{: System.out.println(t); :}
 	| type_qualifier
 	| type_qualifier declaration_specifiers
 	;
@@ -286,18 +321,30 @@ storage_class_specifier
 	;
 
 type_specifier
-	::= VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| struct_or_union_specifier
-	| enum_specifier
-	| type_name
+	::= VOID:v
+	{: RESULT = v; :}
+	| CHAR:c
+	{: RESULT = c; :}
+	| SHORT:s
+	{: RESULT = s; :}
+	| INT:i
+	{: RESULT = i; :}
+	| LONG:l
+	{: RESULT = l; :}
+	| FLOAT:f
+	{: RESULT = f; :}
+	| DOUBLE:d
+	{: RESULT = d; :}
+	| SIGNED:si
+	{: RESULT = si; :}
+	| UNSIGNED:un
+	{: RESULT = un; :}
+	| struct_or_union_specifier:st
+	{: RESULT = st; :}
+	| enum_specifier:en
+	{: RESULT = en; :}
+	| type_name:ty
+	{: RESULT = ty; :}
 	;
 
 struct_or_union_specifier
