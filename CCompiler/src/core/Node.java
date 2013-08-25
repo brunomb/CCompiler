@@ -39,6 +39,12 @@ public class Node {
 	public String toString() {
 		return this.lexema + "(" + this.type + ")";
 	}
-	
-	
+
+	public boolean equals(Node no){
+		if (this.toString().equals(no.toString())){
+			return true;			
+		}else {
+			return false;
+		}	
+	}
 }
