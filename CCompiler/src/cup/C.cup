@@ -582,7 +582,7 @@ function_definition
 	::= declaration_specifiers declarator:id declaration_list compound_statement
 	{: System.out.println("id: " + id); :}
 	| declaration_specifiers:des declarator:id compound_statement
-	{: System.out.println(des + ", " + id); :}
+	{: TabelaSimbolos.getInstance().addFunction(id.toString(), des.toString()); :}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;
