@@ -2,11 +2,12 @@
 lang_name "ccompiler"
 
 /*Config.*/
-automaton_kind "dtran" /*DUVIDA*/
-bottomup lalr analyzer /*DUVIDA*/
-
+automaton_kind "dtran"
+bottomup lalr analyzer
 /*Tratamento de erros*/
 error_handling sentence_level { ";" }
+conflict shift-reduce shift
+conflict reduce-reduce default
 
 /*Palavras Chave*/
 keywords { "auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while" }
@@ -73,6 +74,25 @@ terminal CONSTANT = {numero}+{Exp}{FS}?;
 terminal CONSTANT = {numero}*"."{numero}+({Exp})?{FS}?;
 terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 
+/* Definir hierarquia de tipos primitivos textuais */
+TypeHierarchy.createType( "char");
+/* Definir hierarquia de tipos primitivos numéricos */
+TypeHierarchy.createType( "double");
+TypeHierarchy.createType( "float", "double");
+TypeHierarchy.createType( "int", "float");
+/* Definir hierarquia de outros tipos primitivos */
+TypeHierarchy.createType( "void");
+
+/* 2º PASSO - SIstema de Tipos */
+/* Definir especificidades da linguagem */
+TypeSystem.setOverloading(ContextIndependent, false);
+TypeSystem.setOverloading(ContextDependent, false);
+TypeSystem.setPolymorphism(Parametric, false);
+TypeSystem.setPolymorphism(Inclusion, false);
+TypeSystem.setCoercion(true);
+TypeSystem.setCasting(true);
+
+
 /*Regras de Produção*/
 <primary_expression>
 	::= IDENTIFIER 
@@ -81,15 +101,23 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 	| ABREPARENTESES <expression> FECHAPARENTESES
 	;
 
-<primary_expression>
+<postfix_expression>
 	::= <primary_expression> 
-	| <primary_expression> ABRECOCHETES <expression> FECHACOCHETES 
-	| <primary_expression> ABREPARENTESES FECHAPARENTESES 
-	| <primary_expression> ABREPARENTESES <argument_expression_list> FECHAPARENTESES
-	| <primary_expression> PONTO IDENTIFIER
-	| <primary_expression> PTR_OP IDENTIFIER
-	| <primary_expression> INC_OP
-	| <primary_expression> DEC_OP
+	| <postfix_expression> ABRECOCHETES <expression> FECHACOCHETES
+	| <postfix_expression> ABREPARENTESES FECHAPARENTESES 
+	{:
+ 	if (!(Checker.checkNumberOfParameters(exp)) || !(Checker.checkMethod(exp)))            
+ 		ErrorHandler.errorMessage("Chamada de método feita de modo incorreto!");
+ 	:}
+	| <postfix_expression>:exp ABREPARENTESES <argument_expression_list>:arglist FECHAPARENTESES
+	{:
+ 	if (!(Checker.checkParametersTypes(exp, arglist)) || !(Checker.checkNumberOfParameters(exp, arglist)) || !(Checker.checkMethod(exp)))            
+ 		ErrorHandler.errorMessage("Chamada de método feita de modo incorreto!");
+ 	:}
+	| <postfix_expression> PONTO IDENTIFIER
+	| <postfix_expression> PTR_OP IDENTIFIER
+	| <postfix_expression> INC_OP
+	| <postfix_expression> DEC_OP
 	;
 	
 <argument_expression_list>
@@ -98,7 +126,7 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 	;
 	
 <unary_expression>
-	::= <primary_expression>
+	::= <postfix_expression>
 	| INC_OP <unary_expression>
 	| DEC_OP <unary_expression>
 	| <unary_operator> <cast_expression>
@@ -117,7 +145,11 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 	
 <cast_expression>
 	::= <unary_expression>
-	| ABREPARENTESES <type_name> FECHAPARENTESES <cast_expression>
+	| ABREPARENTESES <type_name>:tipo FECHAPARENTESES <cast_expression>:exp
+	{: 
+ 	if (!(TypeHierarchy.isCastable(exp.getType(), tipo))
+ 		ErrorHandler.errorMessage("Não é possível realizar casting de " + exp.getType() + "para " + tipo);
+ 	:}
 	;
 	
 <multiplicative_expression>
@@ -141,51 +173,111 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 
 <relational_expression>
 	::= <shift_expression>
-	| <relational_expression> MENORQUE <shift_expression>
-	| <relational_expression> MAIORQUE <shift_expression>
-	| <relational_expression> LE_OP <shift_expression>
-	| <relational_expression> GE_OP <shift_expression>
+	| <relational_expression>:exp1 MENORQUE <shift_expression>:exp2
+	{: 
+ 	if (!(TypeHierarchy.isCoercible(exp1.getType(), exp2.getType())) && (exp1.getType() != exp2.getType()))
+ 		ErrorHandler.errorMessage("Tipos devem ser os mesmo");
+ 	else if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
+	| <relational_expression>:exp1 MAIORQUE <shift_expression>:exp2
+	{: 
+ 	if (!(TypeHierarchy.isCoercible(exp1.getType(), exp2.getType())) && (exp1.getType() != exp2.getType()))
+ 		ErrorHandler.errorMessage("Tipos devem ser os mesmo");
+ 	else if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
+	| <relational_expression>:exp1 LE_OP <shift_expression>:exp2
+	{: 
+ 	if (!(TypeHierarchy.isCoercible(exp1.getType(), exp2.getType())) && (exp1.getType() != exp2.getType()))
+ 		ErrorHandler.errorMessage("Tipos devem ser os mesmo");
+ 	else if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
+	| <relational_expression>:exp1 GE_OP <shift_expression>:exp2
+	{: 
+ 	if (!(TypeHierarchy.isCoercible(exp1.getType(), exp2.getType())) && (exp1.getType() != exp2.getType()))
+ 		ErrorHandler.errorMessage("Tipos devem ser os mesmo");
+ 	else if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 	
 <equality_expression>
 	::= <relational_expression>
-	| <equality_expression> EQ_OP <relational_expression>
-	| <equality_expression> NE_OP <relational_expression>
+	| <equality_expression>:exp1 EQ_OP <relational_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
+	| <equality_expression>:exp1 NE_OP <relational_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 
 <and_expression>
 	::= <equality_expression>
-	| <and_expression> ECOMERCIAL <equality_expression>
+	| <and_expression>:exp1 ECOMERCIAL <equality_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 	
 <exclusive_or_expression>
 	::= <and_expression>
-	| <exclusive_or_expression> CIRCUNFLEXO <and_expression>
+	| <exclusive_or_expression>:exp1 CIRCUNFLEXO <and_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 	
 <inclusive_or_expression>
 	::= <exclusive_or_expression>
-	| <inclusive_or_expression> PIPELINE <exclusive_or_expression>
+	| <inclusive_or_expression>:exp1 PIPELINE <exclusive_or_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 
 <logical_and_expression>
 	::= <inclusive_or_expression>
-	| <logical_and_expression> AND_OP <inclusive_or_expression>
+	| <logical_and_expression>:exp1 AND_OP <inclusive_or_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 	
 <logical_or_expression>
 	::= <logical_and_expression>
-	| <logical_or_expression> OR_OP <logical_and_expression>
+	| <logical_or_expression>:exp1 OR_OP <logical_and_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 	
 <conditional_expression>
 	::= <logical_or_expression>
-	| <logical_or_expression> INTERROGACAO <expression> DOISPONTOS <conditional_expression>
+	| <logical_or_expression> INTERROGACAO <expression>:exp1 DOISPONTOS <conditional_expression>:exp2
+	{: 
+ 	if ((exp1.getType() == "void") || (exp2.getType() == "void"))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 
 <assignment_expression>
 	::= <conditional_expression>
-	| <unary_expression> <assignment_operator> <assignment_expression>
+	| <unary_expression>:id <assignment_operator> <assignment_expression>:vid
+	{: 
+ 	if (!(TypeHierarchy.isCoercible(id.getType(), vi.getType())) && (id.getType() != vi.getType()))
+ 		ErrorHandler.errorMessage("Tipo não pode ser void");
+ 	:}
 	;
 
 <assignment_operator>
@@ -212,17 +304,43 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 	;
 	
 <declaration>
-	::= <declaration_specifiers> PONTOEVIRGULA
-	| <declaration_specifiers> <init_declarator_list> PONTOEVIRGULA
+	::= <declaration_specifiers>:id PONTOEVIRGULA
+	{:
+ 	if ((Checker.checkVariables(id)))            
+ 		ErrorHandler.errorMessage("Variavel ja existe!");
+ 	:}
+	| <declaration_specifiers>:id <init_declarator_list>id2 PONTOEVIRGULA
+	{:
+ 	if ((Checker.checkVariables(id)))            
+ 		ErrorHandler.errorMessage("Variavel ja existe!");
+ 	else if (!(TypeHierarchy.isCoercible(id.getType(), id2.getType())) && (id.getType() != id2.getType()))
+ 		ErrorMessage.typeMismatch;
+ 	:}
 	;
 
 <declaration_specifiers>
 	::= <storage_class_specifier>
 	| <storage_class_specifier> <declaration_specifiers>
-	| <type_specifier>
-	| <type_specifier> <declaration_specifiers>
-	| <type_qualifier>
-	| <type_qualifier> <declaration_specifiers>
+	| <type_specifier>:tipo
+	{: 
+ 	if (TypeHierarchy.getType(tipo) == null)
+ 		ErrorHandler.errorMessage("Tipo inexistente");
+ 	:}
+	| <type_specifier>:tipo <declaration_specifiers>
+	{: 
+ 	if (TypeHierarchy.getType(tipo) == null)
+ 		ErrorHandler.errorMessage("Tipo inexistente");
+ 	:}	
+	| <type_qualifier>:tipo
+	{: 
+ 	if (TypeHierarchy.getType(tipo) == null)
+ 		ErrorHandler.errorMessage("Tipo inexistente");
+ 	:}	
+	| <type_qualifier>:tipo <declaration_specifiers>
+	{: 
+ 	if (TypeHierarchy.getType(tipo) == null)
+ 		ErrorHandler.errorMessage("Tipo inexistente");
+ 	:}	
 	;
 
 <init_declarator_list>
@@ -412,6 +530,10 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 <labeled_statement>
 	::= IDENTIFIER DOISPONTOS <statement>
 	| CASE <constant_expression> DOISPONTOS <statement>
+	{: 
+ 	if (constant_expression.getType() == TypeHierarchy.getType("void"))
+		ErrorHandler.errorMessage(ErrorMessage.typeMismatch);
+ 	:}
 	| DEFAULT DOISPONTOS <statement>
 	;
 
@@ -438,9 +560,21 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 	;
 
 <selection_statement>
-	::= IF ABREPARENTESES <expression> FECHAPARENTESES <statement>
+	::= IF ABREPARENTESES <expression> FECHAPARENTESES <statement> 
+	{: 
+ 	if (expression.getType() == TypeHierarchy.getType("void"))
+		ErrorHandler.errorMessage(ErrorMessage.ifStatement);
+ 	:}
 	| IF ABREPARENTESES <expression> FECHAPARENTESES <statement> ELSE <statement>
+	{: 
+ 	if (expression.getType() == TypeHierarchy.getType("void"))
+		ErrorHandler.errorMessage(ErrorMessage.ifStatement);
+ 	:}
 	| SWITCH ABREPARENTESES <expression> FECHAPARENTESES <statement>
+	{: 
+ 	if (expression.getType() == TypeHierarchy.getType("void"))
+		ErrorHandler.errorMessage(ErrorMessage.ifStatement);
+ 	:}
 	;
 
 
@@ -470,8 +604,16 @@ terminal CONSTANT = {numero}+"."{numero}*({Exp})?{FS}?;
 	;
 
 <function_definition>
-	::= <declaration_specifiers> <declarator> <declaration_list> <compound_statement>
-	| <declaration_specifiers> <declarator> <compound_statement>
+	::= <declaration_specifiers> <declarator>:id <declaration_list> <compound_statement>
+	{:
+ 	if ((Checker.checkMethod(id)))            
+ 		ErrorHandler.errorMessage("Metodo ja existe!");
+ 	:}
+	| <declaration_specifiers> <declarator>:id <compound_statement>
+	{:
+ 	if ((Checker.checkMethod(id)))            
+ 		ErrorHandler.errorMessage("Metodo ja existe!");
+ 	:}
 	| <declarator> <declaration_list> <compound_statement>
 	| <declarator> <compound_statement>
 	;
