@@ -22,11 +22,35 @@ public class TabelaSimbolos {
 		return instance;
 	}
 	
+	public ArrayList<Simbolo> getSimbolos() {
+		return this.simbolos;
+	}
+	
 	public Variavel searchVar(Simbolo s) {
 		
 		for (int i = 0; i < simbolos.size(); i++) {
-			if (simbolos.get(i).getLexema().equals(s.getLexema())) {
+			if (simbolos.get(i).getLexema().equals(s.getLexema()) && (simbolos.get(i) instanceof Variavel)) {
 				return (Variavel) simbolos.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	public Variavel searchVar(String s) {
+		for (int i = 0; i < simbolos.size(); i++) {
+			if (simbolos.get(i).getLexema().equals(s)) {
+				return (Variavel) simbolos.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	public Funcao searchFun(Simbolo s) {
+		for (int i = 0; i < simbolos.size(); i++) {
+			if (simbolos.get(i).getLexema().equals(s.getLexema())) {
+				return (Funcao) simbolos.get(i);
 			}
 		}
 		
@@ -51,7 +75,8 @@ public class TabelaSimbolos {
 					return true;
 				}
 			} else if (simbolos.get(i) instanceof Funcao) {
-				if (f.equals((Funcao) simbolos.get(i))) {
+//				if (f.equals((Funcao) simbolos.get(i))) { // TODO: Implementar Sobrecarga
+				if (simbolos.get(i).getLexema().equals(f.getLexema())) {
 					return true;
 				}
 			}
@@ -75,7 +100,7 @@ public class TabelaSimbolos {
 		try {
 			newSimbolo = (Simbolo) new Variavel(lexema, type, value, parent);
 			addSimbolo(newSimbolo);
-			LogHandler.showInfo("Variavel adicionada: " + newSimbolo);
+			LogHandler.showInfo("Variavel criada: " + newSimbolo);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -90,26 +115,12 @@ public class TabelaSimbolos {
 		} 	
 	}
 	
-	public void addFuncao(String name_parametros, String retorno) {
-		name_parametros = name_parametros.replace(" ", "");
-		name_parametros = name_parametros.replace(")", "");
-		name_parametros = name_parametros.replace("(",",");
-		String[] lista = name_parametros.split(",");
-		String nome = lista[0];
+	
+	public void addFuncao(String stringParametros, String returnType) {
 		
-		ArrayList<Variavel> parametros = new ArrayList<Variavel>();
-		
-		for (int i = 1; i < lista.length; i = i+2) {
-			try {
-				parametros.add(new Variavel(lista[i], lista[i+1],null, null));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		Funcao f = new Funcao(nome, retorno, parametros, null);
-		
-		addSimbolo(f);
-		LogHandler.showInfo("Funcao adicionada: " + f);
+		Funcao newF = Utils.string2Funcao(stringParametros, returnType);
+		addSimbolo(newF);
+		LogHandler.showInfo("Funcao adicionada: " + newF);
 	}
 	
 }

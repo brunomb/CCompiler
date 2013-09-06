@@ -4,6 +4,7 @@ public class LogHandler {
 //	OFF(0), TRACE(1), DEBUG(2), INFO(3), WARN(4), ERROR(5);
 	static int TRACE = 5, DEBUG = 4, INFO = 3, WARN = 2, ERROR = 1, OFF = 0;
 	static int LEVEL = DEBUG;
+	static boolean IFERROREXIT = true;
 	
 	public static void funcAlreadyExist(Funcao f) {
 		showError("Funcao já existe: " + f.getLexema());
@@ -40,6 +41,10 @@ public class LogHandler {
 	public static void showError(String msg) {
 		if (LEVEL >= ERROR) {
 			System.err.println("ERROR: " + msg);
+		}
+		
+		if (IFERROREXIT) {
+			System.exit(1);
 		}
 	}
 	

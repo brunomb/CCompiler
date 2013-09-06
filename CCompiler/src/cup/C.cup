@@ -133,8 +133,10 @@ postfix_expression
 	::= primary_expression:pexp
 	{: RESULT = pexp; :}
 	| postfix_expression ABRECOCHETES expression FECHACOCHETES 
-	| postfix_expression ABREPARENTESES FECHAPARENTESES 
-	| postfix_expression ABREPARENTESES argument_expression_list FECHAPARENTESES
+	| postfix_expression:p ABREPARENTESES FECHAPARENTESES
+	{: CheckTypes.checkIfFuncaoExist(p.toString(), ""); :}
+	| postfix_expression:p ABREPARENTESES argument_expression_list:a FECHAPARENTESES
+	{: CheckTypes.checkIfFuncaoExist(p.toString(), a.toString()); :}
 	| postfix_expression PONTO IDENTIFIER
 	| postfix_expression PTR_OP IDENTIFIER
 	| postfix_expression INC_OP
@@ -142,8 +144,10 @@ postfix_expression
 	;
 	
 argument_expression_list
-	::= assignment_expression
-	| argument_expression_list VIRGULA assignment_expression
+	::= assignment_expression:ae
+	{: RESULT = ae; :}
+	| argument_expression_list:ael VIRGULA assignment_expression:ae
+	{: RESULT = ael + ", " + ae; :}
 	;
 	
 unary_expression
@@ -251,7 +255,7 @@ assignment_expression
 	::= conditional_expression:co
 	{: RESULT = co; :}
 	| unary_expression:en assignment_operator:as assignment_expression:ase
-	{: System.out.println("Checktype:" + en + " " + as + " " + ase); CheckTypes.checkAssignment(en, ase); RESULT = ase;  :}
+	{: CheckTypes.checkAssignment(en, ase); RESULT = ase;  :}
 	;
 
 assignment_operator
@@ -574,7 +578,7 @@ translation_unit
 
 external_declaration
 	::= function_definition:id
-	{: RESULT = id; System.out.println("FUNCTION: " + RESULT); :}
+	{: RESULT = id; :}
 	| declaration
 	;
 

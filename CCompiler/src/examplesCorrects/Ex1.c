@@ -1,30 +1,30 @@
+int printf(int a, char b, int c)
+{
+	return a;
+}
+
+void teste(int a, int b, int c, int d)
+{
+	return a;
+}
+
 void main()
 {
-	int x, y, z;
-	int x, y, z;
+	double x, y, z;
+	char c;
 	char w[6];
-	"aa" = "a";
-	x = y = "a";
+	x = 1;
+	x = 5;
+	x = y = 6;
 	z = ++x;	
 	x = -x;
-	mat = 10;
+
 	y++;
 	x = x + y - (z--);
 
-    printf("%d", x);
-    printf("%d", x);
-    printf("%d", x);
 }
 
-int teste(int a, int b, int c)
-{
-	return a;
-}
 
-int teste(int a, int b, int c, int d)
-{
-	return a;
-}
 
 /* output:
 -11
