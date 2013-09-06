@@ -1,11 +1,13 @@
 void main()
 {
 	int x, y, z;
+	int x, y, z;
 	char w[6];
 	"aa" = "a";
-	x = y = 10;
+	x = y = "a";
 	z = ++x;	
 	x = -x;
+	mat = 10;
 	y++;
 	x = x + y - (z--);
 
@@ -15,6 +17,11 @@ void main()
 }
 
 int teste(int a, int b, int c)
+{
+	return a;
+}
+
+int teste(int a, int b, int c, int d)
 {
 	return a;
 }

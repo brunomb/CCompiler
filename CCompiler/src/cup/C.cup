@@ -1,6 +1,6 @@
 import java_cup.runtime.*;
 import core.CheckTypes;
-import core.Node;
+import core.Simbolo;
 import core.TabelaSimbolos;
 
 /* Este codigo foi reusado do exemplo de Daniel. Ele serve para nos mostrar aonde ocorreu um erro, ao ler um arquivo de entrada. */
@@ -120,11 +120,11 @@ start with translation_unit;
 
 primary_expression 
 	::= IDENTIFIER:id
-	{: Node n = new Node(id.toString(), "IDENTIFIER", null); RESULT = n; :}
+	{: Simbolo s = new Simbolo(id.toString(), "IDENTIFIER", null); RESULT = s; :}
 	| CONSTANT:cons
-	{: Node n = new Node(cons.toString(), "CONSTANT", null); RESULT = n; :}
+	{: Simbolo s = new Simbolo(cons.toString(), "CONSTANT", null); RESULT = s; :}
 	| STRING_LITERAL:str
-	{: Node n = new Node(str.toString(), "STRING", null); RESULT = n; :}
+	{: Simbolo s = new Simbolo(str.toString(), "STRING", null); RESULT = s; :}
 	| ABREPARENTESES expression:exp FECHAPARENTESES
 	{: RESULT = exp; :}
 	;
@@ -251,7 +251,7 @@ assignment_expression
 	::= conditional_expression:co
 	{: RESULT = co; :}
 	| unary_expression:en assignment_operator:as assignment_expression:ase
-	{: System.out.println("Checktype:" + en + " " + as + " " + ase); CheckTypes.getInstance().checkAssignment(en, ase); RESULT = ase;  :}
+	{: System.out.println("Checktype:" + en + " " + as + " " + ase); CheckTypes.checkAssignment(en, ase); RESULT = ase;  :}
 	;
 
 assignment_operator
@@ -291,7 +291,7 @@ constant_expression
 declaration
 	::= declaration_specifiers PONTOEVIRGULA
 	| declaration_specifiers:ds init_declarator_list:in PONTOEVIRGULA
-	{: TabelaSimbolos.getInstance().addList(in.toString(), ds.toString()); :}
+	{: TabelaSimbolos.getInstance().addListaVariavel(in.toString(), ds.toString()); :}
 	;
 
 declaration_specifiers
@@ -582,7 +582,7 @@ function_definition
 	::= declaration_specifiers declarator:id declaration_list compound_statement
 	{: System.out.println("id: " + id); :}
 	| declaration_specifiers:des declarator:id compound_statement
-	{: TabelaSimbolos.getInstance().addFunction(id.toString(), des.toString()); :}
+	{: TabelaSimbolos.getInstance().addFuncao(id.toString(), des.toString()); :}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;

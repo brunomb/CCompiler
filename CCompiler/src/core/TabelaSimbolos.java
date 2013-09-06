@@ -6,83 +6,110 @@ import java.util.ArrayList;
 public class TabelaSimbolos {
 	
 	String nomeContexto;
-	ArrayList<Node> listaNos = new ArrayList<Node>();
-	ArrayList<Function> listaFuncoes = new ArrayList<Function>();
+	private ArrayList<Simbolo> simbolos;
 	
 	static TabelaSimbolos instance;
 	
-	
 	private TabelaSimbolos(String nomeContexto) {
 		this.nomeContexto = nomeContexto;
-	
+		this.simbolos = new ArrayList<Simbolo>();
 	}
 	
 	public static TabelaSimbolos getInstance() {
 		if (instance == null) {
 			instance = new TabelaSimbolos("main");
 		}
-		
 		return instance;
 	}
 	
-	public void addList(String list, String type) {
+	public Variavel searchVar(Simbolo s) {
 		
-		String[] lista = list.split(",");
-		for (int i = 0; i < lista.length; i++) {
-			
-			Node no = new Node(lista[i].replace(" ", ""), type, null); // Cria o no
-			if(checkSym(no)){ // Check se o no ja esta na tabela
-				listaNos.add(no);
-				//System.out.println("ADICIONEI NA TAB: " + lista[i].replace(" ", "") + " DO TIPO: " + type);
-			}			
-		} 	
+		for (int i = 0; i < simbolos.size(); i++) {
+			if (simbolos.get(i).getLexema().equals(s.getLexema())) {
+				return (Variavel) simbolos.get(i);
+			}
+		}
+		
+		return null;
 	}
 	
-	public void add(String sym, String type) {
-		Node no = new Node(sym, type, null); // Cria o no
-		if(checkSym(no)){ // Check se o no ja esta na tabela
-			listaNos.add(no);
-			System.out.println("ADICIONEI NA TAB: " + sym + " DO TIPO: " + type);
+	public boolean existVar(Variavel v) {
+		for (int i = 0; i < simbolos.size(); i++) {
+			if (simbolos.get(i).getLexema().equals(v.getLexema())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean existFunc(Funcao f) {
+		for (int i = 0; i < simbolos.size(); i++) {
+			
+			if (simbolos.get(i) instanceof Variavel) {
+				if (simbolos.get(i).getLexema().equals(f.getLexema())) {
+					return true;
+				}
+			} else if (simbolos.get(i) instanceof Funcao) {
+				if (f.equals((Funcao) simbolos.get(i))) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	public void addSimbolo(Simbolo s) {
+		if (s instanceof Variavel && existVar((Variavel) s)) {
+			LogHandler.varAlreadyExist((Variavel) s); 
+		} else if (s instanceof Funcao && existFunc((Funcao) s)) {
+			LogHandler.funcAlreadyExist((Funcao) s);
+		} else {
+			simbolos.add(s);
 		}
 	}
 	
-	public void addFunction(String name_parametros, String retorno) {
+	public void addVariavel(String lexema, String type, Object value, Simbolo parent) {
+		Simbolo newSimbolo;
+		try {
+			newSimbolo = (Simbolo) new Variavel(lexema, type, value, parent);
+			addSimbolo(newSimbolo);
+			LogHandler.showInfo("Variavel adicionada: " + newSimbolo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void addListaVariavel(String list, String type) {
+		String[] lista = list.split(",");
+		
+		for (int i = 0; i < lista.length; i++) {
+			addVariavel(lista[i].replace(" ", ""), type, null, null);
+		} 	
+	}
+	
+	public void addFuncao(String name_parametros, String retorno) {
 		name_parametros = name_parametros.replace(" ", "");
 		name_parametros = name_parametros.replace(")", "");
 		name_parametros = name_parametros.replace("(",",");
 		String[] lista = name_parametros.split(",");
 		String nome = lista[0];
-		ArrayList<Node> nos = new ArrayList<Node>();
+		
+		ArrayList<Variavel> parametros = new ArrayList<Variavel>();
 		
 		for (int i = 1; i < lista.length; i = i+2) {
-			nos.add(new Node(lista[i], lista[i+1],null));
+			try {
+				parametros.add(new Variavel(lista[i], lista[i+1],null, null));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+		Funcao f = new Funcao(nome, retorno, parametros, null);
 		
-		Function funcao = new Function(nome, retorno, nos);
-		if(checkFunc(funcao)){
-			listaFuncoes.add(funcao);
-			//System.out.println("ADICIONEI FUNC: " + name_parametros + " COM O RETORNO: " + retorno);
-		}
+		addSimbolo(f);
+		LogHandler.showInfo("Funcao adicionada: " + f);
 	}
 	
-	//TODO Como deve ser o equals do simbolo da tabela? (Ver semantica de C)
-	public boolean checkSym(Node simbolo){ // Check se ja existe um simbolo na tabela (um simbolo é igual a outro se tiver o mesmo nome o mesmo tipo)
-		for (int i = 0; i < listaNos.size(); i++) {	
-			if(simbolo.equals(listaNos.get(i))){
-				System.err.println("Variavel já cadastrada");
-				System.exit(0);
-			}
-		}
-		return true;
-	}
-	
-	public boolean checkFunc(Function funcao){ // Check se ja existe uma funca na tabela (como tem sobrecarga uma funcao so vai ser considerada igual a outra se tiver o mesmo nome e o mesmo numero e tips de parametros
-		for (int i = 0; i < listaFuncoes.size(); i++) {
-			if (funcao.equals(listaFuncoes.get(i))){
-				System.err.println("ERROR - Sobrecarga " + funcao.getNome() + " " + funcao.getNome() );
-				System.exit(0);
-			}
-		}
-		return true;
-	}
 }
