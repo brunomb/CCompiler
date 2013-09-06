@@ -24,4 +24,12 @@ public class Utils {
 		
 		return new Funcao(nome, returnType, parametros, null);
 	}
+	
+	public static ArrayList<Variavel> string2Parametros(String stringParametros) {
+		ArrayList<Variavel> result = new ArrayList<Variavel>();
+		
+		
+		
+		return result;
+	}
 }

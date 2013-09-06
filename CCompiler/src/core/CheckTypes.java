@@ -65,47 +65,75 @@ public class CheckTypes {
 		
 		Funcao f = TabelaSimbolos.getInstance().searchFun(new Simbolo(namespace, null, null));
 		
+		// Nome de função não existe;
 		if (f == null) {
 			LogHandler.showError("Funcao não existe: " + namespace);
-		} else {
+			return;
+		}
 		
-			String[] par = strParametros.split(",");
-			Variavel varTemp = null;
+		String[] par = null;
+		
+		if (strParametros.contains(",")) {
+			par = strParametros.split(",");
+		} else {
+			par = new String[0];
+		}
+		
+		Variavel varTemp = null;
+		
+		// Quantidade de parametros incorreto;
+		if (f.getParametros().size() != par.length) {
+			LogHandler.showError("Quantidade de parametros incorreto: " + f.getLexema());
+			return;
+		}
+
+		for (int i = 0; i < par.length; i++) {
+			String temp =  par[i].substring(par[i].indexOf("(")).replace("(","").replace(")","");
 			
-			for (int i = 0; i < par.length; i++) {
-				if (par[i].equals(""))
-					continue;
-				
-				String temp =  par[i].substring(par[i].indexOf("(")).replace("(","").replace(")","");
-				
-				if (temp.equalsIgnoreCase("IDENTIFIER")) {
-					String id = par[i].substring(0, par[i].indexOf("(")).trim();
-					varTemp = TabelaSimbolos.getInstance().searchVar(id);
-					if(varTemp == null) {
-						LogHandler.showError("Variavel não existe: " + id);
-					} else {
-						parametros.add(varTemp);
-					}
-					
-				} else {
-					try {
-						parametros.add(new Variavel(null, temp.toLowerCase(), null, null));
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
+			System.out.println("f: " + f.getParametros().get(i) + " t: " + par[i].substring(0, par[i].indexOf("(")).trim() + "(" + temp +")");
 			
-			if (f.getParametros().size() != parametros.size()) {
-				LogHandler.showError("Quantidade de parametros incorreto: " + f.getLexema());
-			} else {
-				for (int j = 0; j < f.getParametros().size(); j++) {
-					if (!(f.getParametros().get(j).getType().equalsIgnoreCase(parametros.get(j).getType()))) {
-						LogHandler.showError("Função com parametro incorreto: " + parametros.get(j));
-					}
+			String id = par[i].substring(0, par[i].indexOf("(")).trim();
+			
+			if (temp.equalsIgnoreCase("CONSTANT") && (f.getParametros().get(i).getType().equalsIgnoreCase("CHAR"))) {
+				LogHandler.showError("1Função com parametro incorreto: " + id + "(" + temp + ") deveria ser " + f.getParametros().get(i).getType());
+//				try {
+//					parametros.add(new Variavel(null, f.getParametros().get(i).getType(), null, null));
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+			} else if (temp.equalsIgnoreCase("STRING") && !(f.getParametros().get(i).getType().equalsIgnoreCase("CHAR"))) {
+				System.err.println(f.getParametros().get(i).getType());
+				LogHandler.showError("2Função com parametro incorreto: " + id + "(" + temp + ") deveria ser " + f.getParametros().get(i).getLexema() + ":" + f.getParametros().get(i).getType());
+//				try {
+//					parametros.add(new Variavel(null, "CHAR", null, null));
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+			} else if (temp.equalsIgnoreCase("IDENTIFIER")) {
+				varTemp = TabelaSimbolos.getInstance().searchVar(id);
+				
+				// Variável usada como parametro não existe;
+				if(varTemp == null) {
+					LogHandler.showError("Variavel não existe: " + id);
+					return;
+				} 
+				
+				System.out.println("var: " + varTemp.getType());
+				
+				if (varTemp.getType().equalsIgnoreCase("CHAR") && !f.getParametros().get(i).getType().equalsIgnoreCase("CHAR")) {
+					LogHandler.showError("3Função com parametro incorreto: " + varTemp + " deveria ser " + f.getParametros().get(i).getType());
+				} else if (!varTemp.getType().equalsIgnoreCase("CHAR") && f.getParametros().get(i).getType().equalsIgnoreCase("CHAR")) {
+					LogHandler.showError("3Função com parametro incorreto: " + varTemp + " deveria ser " + f.getParametros().get(i).getType());
 				}
 			}
 		}
+		
+		// Tipos de parametros incorreto;
+//		for (int j = 0; j < f.getParametros().size(); j++) {
+//			if (!(f.getParametros().get(j).getType().equalsIgnoreCase(parametros.get(j).getType())))
+//				LogHandler.showError("Função com parametro incorreto: " + parametros.get(j));
+//		}
+		
 	}
 	
 }
