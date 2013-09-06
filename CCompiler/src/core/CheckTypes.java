@@ -12,7 +12,45 @@ public class CheckTypes {
 //		
 //		return v;
 //	}
+		
+	public static void checkSwitchEx(Object ex){
+		Simbolo s = (Simbolo) ex;
+		if (s.getType().equalsIgnoreCase("CONSTANT") && s.getLexema().contains(".")){
+			LogHandler.showError("Expressão do SWITCH deve ser do tipo inteiro");
+		}
+		else if (s.getType().equalsIgnoreCase("STRING")){
+			LogHandler.showError("Expressão do SWITCH deve ser do tipo inteiro");
+		}
+		else if (s.getType().equalsIgnoreCase("IDENTIFIER")){
+			Variavel v = TabelaSimbolos.getInstance().searchVar(s);
+			if (v == null) {
+				LogHandler.showError("Variavel não foi criada: " + s.getLexema());
+			}
+			else if(!(v.getType().equalsIgnoreCase("INT"))){
+				LogHandler.showError("Expressão do SWITCH deve ser do tipo inteiro");
+			}
+		}
+	}
 	
+	public static void checkCaseEx(Object ex){
+		Simbolo s = (Simbolo) ex;
+		if (s.getType().equalsIgnoreCase("CONSTANT") && s.getLexema().contains(".")){
+			LogHandler.showError("CASE deve ser do tipo inteiro");
+		}
+		else if (s.getType().equalsIgnoreCase("STRING")){
+			LogHandler.showError("CASE deve ser do tipo inteiro");
+		}
+		else if (s.getType().equalsIgnoreCase("IDENTIFIER")){
+			Variavel v = TabelaSimbolos.getInstance().searchVar(s);
+			if (v == null) {
+				LogHandler.showError("CASE deve ser do tipo inteiro");
+			}
+			else if(!(v.getType().equalsIgnoreCase("INT"))){
+				LogHandler.showError("CASE deve ser do tipo inteiro");
+			}
+		}
+	}
+		
 	public static boolean checkAssignment(Object n1, Object n2) {
 //		return checkAssignment((Node) n1, (Node) n2);
 		

@@ -284,12 +284,14 @@ assignment_operator
 	;
 	
 expression
-	::= assignment_expression
+	::= assignment_expression:ae
+	{: RESULT = ae; :}
 	| expression VIRGULA assignment_expression
 	;
 	
 constant_expression
-	::= conditional_expression
+	::= conditional_expression:ce
+	{: RESULT = ce; :}
 	;
 	
 declaration
@@ -524,7 +526,8 @@ statement
 
 labeled_statement
 	::= IDENTIFIER DOISPONTOS statement
-	| CASE constant_expression DOISPONTOS statement
+	| CASE constant_expression:ce DOISPONTOS statement
+	{: CheckTypes.checkCaseEx(ce); :}
 	| DEFAULT DOISPONTOS statement
 	;
 
@@ -553,7 +556,8 @@ expression_statement
 selection_statement
 	::= IF ABREPARENTESES expression FECHAPARENTESES statement
 	| IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement
-	| SWITCH ABREPARENTESES expression FECHAPARENTESES statement
+	| SWITCH ABREPARENTESES expression:ex FECHAPARENTESES statement 
+	{: CheckTypes.checkSwitchEx(ex); :}
 	;
 
 iteration_statement
