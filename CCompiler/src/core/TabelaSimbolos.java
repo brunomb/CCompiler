@@ -40,7 +40,8 @@ public class TabelaSimbolos {
 	public Variavel searchVar(String s) {
 		for (int i = 0; i < simbolos.size(); i++) {
 			if (simbolos.get(i).getLexema().equals(s)) {
-				return (Variavel) simbolos.get(i);
+				if (simbolos.get(i) instanceof Variavel)
+					return (Variavel) simbolos.get(i);
 			}
 		}
 		
@@ -50,7 +51,8 @@ public class TabelaSimbolos {
 	public Funcao searchFun(Simbolo s) {
 		for (int i = 0; i < simbolos.size(); i++) {
 			if (simbolos.get(i).getLexema().equals(s.getLexema())) {
-				return (Funcao) simbolos.get(i);
+				if (simbolos.get(i) instanceof Funcao)
+					return (Funcao) simbolos.get(i);
 			}
 		}
 		

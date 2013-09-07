@@ -155,7 +155,8 @@ unary_expression
 	{: RESULT = pexp; :}
 	| INC_OP unary_expression
 	| DEC_OP unary_expression
-	| unary_operator cast_expression
+	| unary_operator:uo cast_expression:ce
+	{: if ((uo != null) && uo.toString().equals("!")) { CheckTypes.checkNotExp(ce); } :}
 	| SIZEOF unary_expression
 	| SIZEOF ABREPARENTESES type_name:ty FECHAPARENTESES
 	{: RESULT = ty; :}
@@ -168,6 +169,7 @@ unary_operator
 	| MENOS
 	| TIO
 	| EXCLAMACAO
+	{: RESULT = "!"; :}
 	;
 	
 cast_expression
@@ -236,13 +238,15 @@ inclusive_or_expression
 logical_and_expression
 	::= inclusive_or_expression:inc
 	{: RESULT = inc; :}
-	| logical_and_expression AND_OP inclusive_or_expression
+	| logical_and_expression:lae AND_OP inclusive_or_expression:ioe
+	{: CheckTypes.checkIsBothInteger(lae, ioe); :}
 	;
 	
 logical_or_expression
 	::= logical_and_expression:lo
 	{: RESULT = lo; :}
-	| logical_or_expression OR_OP logical_and_expression
+	| logical_or_expression:loe OR_OP logical_and_expression:lae
+	{: CheckTypes.checkIsBothInteger(loe, lae); :}
 	;
 	
 conditional_expression
@@ -286,7 +290,8 @@ assignment_operator
 expression
 	::= assignment_expression:ae
 	{: RESULT = ae; :}
-	| expression VIRGULA assignment_expression
+	| expression VIRGULA assignment_expression:ae
+	{: RESULT = ae; :}
 	;
 	
 constant_expression
@@ -588,7 +593,6 @@ external_declaration
 
 function_definition
 	::= declaration_specifiers declarator:id declaration_list compound_statement
-	{: System.out.println("id: " + id); :}
 	| declaration_specifiers:des declarator:id compound_statement
 	{: TabelaSimbolos.getInstance().addFuncao(id.toString(), des.toString()); :}
 	| declarator declaration_list compound_statement

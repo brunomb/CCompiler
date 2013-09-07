@@ -7,12 +7,42 @@ public class CheckTypes {
 	private CheckTypes() {}
 	
 	
-//	public static Variavel existVar(Simbolo s) {
-//		Variavel v = TabelaSimbolos.getInstance().searchVar(s);
-//		
-//		return v;
-//	}
-		
+	public static void checkIsBothInteger(Object o1, Object o2) {
+		checkIsInteger(o1);
+		checkIsInteger(o2);
+	}
+	
+	
+	public static void checkNotExp(Object o1) {
+		checkIsInteger(o1);
+	}
+	
+	public static void checkIsInteger(Object o1) {
+		Simbolo s1 = (Simbolo) o1;
+
+		if (s1.getType().equalsIgnoreCase("STRING")) {
+			LogHandler.showError(s1 + " deve ser do tipo Integer.");
+		} else if (s1.getType().equalsIgnoreCase("CONSTANT") && s1.getLexema().contains(".")) {
+			LogHandler.showError(s1 + " deve ser do tipo Integer.");
+		} else if (s1.getType().equalsIgnoreCase("IDENTIFIER")) {
+			Variavel v = TabelaSimbolos.getInstance().searchVar(s1);
+			Funcao f = TabelaSimbolos.getInstance().searchFun(s1);
+			
+			if (v != null ) {
+				if (!v.getType().equalsIgnoreCase("INT")) {
+					LogHandler.showError(s1.getLexema() + " deve ser do tipo Integer.");
+				}
+			} else if (f != null) {
+				if (!f.getType().equalsIgnoreCase("INT")) {
+					LogHandler.showError("Funcao " + s1.getLexema() + " não declarada.");
+				}
+			} else {
+				LogHandler.showError(s1 + " não foi declarado.");
+			}
+		}
+	}
+
+
 	public static void checkSwitchEx(Object ex){
 		Simbolo s = (Simbolo) ex;
 		if (s.getType().equalsIgnoreCase("CONSTANT") && s.getLexema().contains(".")){
