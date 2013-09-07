@@ -4,11 +4,19 @@ int printf(int a, char b, int c)
 }
 
 void teste(char a, float b, float c, float d)
-{
+{	
+	int abc;
+	
+	abc = 10;
+	
 	return a;
 }
 
 void teste1(int a, char b) {
+	int abc;
+	
+	abc = 15;
+	
 	return a+b;
 }
 

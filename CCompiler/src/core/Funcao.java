@@ -4,11 +4,14 @@ import java.util.ArrayList;
 
 public class Funcao extends Simbolo {
 	ArrayList<Variavel> parametros;
+	ArrayList<Simbolo> contexto;
 	
-	public Funcao(String lexema, String returnType, ArrayList<Variavel> parametros, Simbolo parent) {
-		super(lexema, returnType, parent);
+	
+	public Funcao(String lexema, String returnType, ArrayList<Variavel> parametros, ArrayList<Simbolo> contexto) {
+		super(lexema, returnType, contexto);
 		
 		this.parametros = parametros;
+		this.contexto = contexto;
 	}
 
 	public ArrayList<Variavel> getParametros() {
@@ -18,7 +21,6 @@ public class Funcao extends Simbolo {
 	public void setParametros(ArrayList<Variavel> parametros) {
 		this.parametros = parametros;
 	}
-	
 	
 	@Override
 	public boolean equals(Object obj) {

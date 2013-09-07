@@ -594,7 +594,7 @@ external_declaration
 function_definition
 	::= declaration_specifiers declarator:id declaration_list compound_statement
 	| declaration_specifiers:des declarator:id compound_statement
-	{: TabelaSimbolos.getInstance().addFuncao(id.toString(), des.toString()); :}
+	{: Object f = TabelaSimbolos.getInstance().addFuncao(id.toString(), des.toString()); TabelaSimbolos.getInstance().addContexto(f); TabelaSimbolos.getInstance().eraseContexto(); :}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;

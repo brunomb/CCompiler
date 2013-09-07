@@ -3,8 +3,8 @@ package core;
 public class Variavel extends Simbolo {
 	Object value;
 
-	public Variavel(String lexema, String type, Object value, Simbolo parent) throws Exception {
-		super(lexema, type, parent);
+	public Variavel(String lexema, String type, Object value) throws Exception {
+		super(lexema, type, null);
 		
 		if (type.equalsIgnoreCase("int")) {
 			this.value = (Integer) value;

@@ -5,13 +5,12 @@ import java.util.ArrayList;
 
 public class TabelaSimbolos {
 	
-	String nomeContexto;
 	private ArrayList<Simbolo> simbolos;
+	private ArrayList<Simbolo> newContexto = new ArrayList<Simbolo>();
 	
 	static TabelaSimbolos instance;
 	
 	private TabelaSimbolos(String nomeContexto) {
-		this.nomeContexto = nomeContexto;
 		this.simbolos = new ArrayList<Simbolo>();
 	}
 	
@@ -28,9 +27,9 @@ public class TabelaSimbolos {
 	
 	public Variavel searchVar(Simbolo s) {
 		
-		for (int i = 0; i < simbolos.size(); i++) {
-			if (simbolos.get(i).getLexema().equals(s.getLexema()) && (simbolos.get(i) instanceof Variavel)) {
-				return (Variavel) simbolos.get(i);
+		for (int i = 0; i < newContexto.size(); i++) {
+			if (newContexto.get(i).getLexema().equals(s.getLexema()) && (newContexto.get(i) instanceof Variavel)) {
+				return (Variavel) newContexto.get(i);
 			}
 		}
 		
@@ -38,10 +37,10 @@ public class TabelaSimbolos {
 	}
 	
 	public Variavel searchVar(String s) {
-		for (int i = 0; i < simbolos.size(); i++) {
-			if (simbolos.get(i).getLexema().equals(s)) {
-				if (simbolos.get(i) instanceof Variavel)
-					return (Variavel) simbolos.get(i);
+		for (int i = 0; i < newContexto.size(); i++) {
+			if (newContexto.get(i).getLexema().equals(s)) {
+				if (newContexto.get(i) instanceof Variavel)
+					return (Variavel) newContexto.get(i);
 			}
 		}
 		
@@ -60,8 +59,8 @@ public class TabelaSimbolos {
 	}
 	
 	public boolean existVar(Variavel v) {
-		for (int i = 0; i < simbolos.size(); i++) {
-			if (simbolos.get(i).getLexema().equals(v.getLexema())) {
+		for (int i = 0; i < newContexto.size(); i++) {
+			if (newContexto.get(i).getLexema().equals(v.getLexema())) {
 				return true;
 			}
 		}
@@ -93,14 +92,39 @@ public class TabelaSimbolos {
 		} else if (s instanceof Funcao && existFunc((Funcao) s)) {
 			LogHandler.funcAlreadyExist((Funcao) s);
 		} else {
-			simbolos.add(s);
+			if (s instanceof Funcao) {
+				simbolos.add(s);
+			} else if (s instanceof Variavel) {
+				newContexto.add(s);
+			}
 		}
 	}
 	
-	public void addVariavel(String lexema, String type, Object value, Simbolo parent) {
+	public void addContexto(Object o) {
+		Funcao f = (Funcao) o;
+		for (Simbolo s : newContexto) {
+			if (s.getLexema().equals(f.getLexema())) {
+				LogHandler.showError("Variavel com o mesmo nome da função: " + s.getLexema());
+			} else {
+				f.addInContexto(s);
+			}
+		}
+	}
+	
+	public void showAll() {
+		for (Simbolo s : simbolos) {
+			s.showContext();
+		}
+	}
+	
+	public void eraseContexto() {
+		newContexto.clear();
+	}
+	
+	public void addVariavel(String lexema, String type, Object value) {
 		Simbolo newSimbolo;
 		try {
-			newSimbolo = (Simbolo) new Variavel(lexema, type, value, parent);
+			newSimbolo = (Simbolo) new Variavel(lexema, type, value);
 			addSimbolo(newSimbolo);
 			LogHandler.showInfo("Variavel criada: " + newSimbolo);
 		} catch (Exception e) {
@@ -113,16 +137,18 @@ public class TabelaSimbolos {
 		String[] lista = list.split(",");
 		
 		for (int i = 0; i < lista.length; i++) {
-			addVariavel(lista[i].replace(" ", ""), type, null, null);
+			addVariavel(lista[i].replace(" ", ""), type, null);
 		} 	
 	}
 	
 	
-	public void addFuncao(String stringParametros, String returnType) {
+	public Object addFuncao(String stringParametros, String returnType) {
 		
 		Funcao newF = Utils.string2Funcao(stringParametros, returnType);
 		addSimbolo(newF);
 		LogHandler.showInfo("Funcao adicionada: " + newF);
+		
+		return (Object) newF;
 	}
 	
 }

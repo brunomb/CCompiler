@@ -5,6 +5,7 @@ import java.io.FileReader;
 
 import cup.parser;
 import flex.LexicalAnalysisC;
+import core.CodeGen;
 
 public class Main {
 
@@ -35,6 +36,8 @@ public class Main {
 				parser p = new parser(s);
 				p.parse();
 				System.out.println("OK :)");
+				
+				System.out.println( CodeGen.Go() ); 
 
 			} catch (Exception e) {
 				System.err.print(e.getMessage());

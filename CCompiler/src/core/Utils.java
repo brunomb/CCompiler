@@ -16,7 +16,7 @@ public class Utils {
 		
 		for (int i = 1; i < lista.length; i = i+2) {
 			try {
-				parametros.add(new Variavel(lista[i], lista[i+1],null, null));
+				parametros.add(new Variavel(lista[i], lista[i+1], null));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

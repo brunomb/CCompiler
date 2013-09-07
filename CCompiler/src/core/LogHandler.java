@@ -3,7 +3,7 @@ package core;
 public class LogHandler {
 //	OFF(0), TRACE(1), DEBUG(2), INFO(3), WARN(4), ERROR(5);
 	static int TRACE = 5, DEBUG = 4, INFO = 3, WARN = 2, ERROR = 1, OFF = 0;
-	static int LEVEL = DEBUG;
+	static int LEVEL = ERROR;
 	static boolean IFERROREXIT = false;
 	
 	public static void funcAlreadyExist(Funcao f) {

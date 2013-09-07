@@ -1,13 +1,20 @@
 package core;
 
+import java.util.ArrayList;
+
 public class Simbolo {
 	String lexema, type;
-	Simbolo parent;
+	ArrayList<Simbolo> contexto;
 	
-	public Simbolo(String lexema, String type, Simbolo parent) {
+	public Simbolo(String lexema, String type, ArrayList<Simbolo> contexto) {
 		this.lexema = lexema;
 		this.type = type;
-		this.parent = parent;
+		
+		if (contexto == null) {
+			this.contexto = new ArrayList<Simbolo>();
+		} else {
+			this.contexto = contexto;
+		}
 	}
 
 	public String getLexema() {
@@ -26,12 +33,34 @@ public class Simbolo {
 		this.type = type;
 	}
 
-	public Simbolo getParent() {
-		return parent;
+	public void addInContexto(Simbolo s) {
+		contexto.add(s);
 	}
-
-	public void setParent(Simbolo parent) {
-		this.parent = parent;
+	
+	public ArrayList<Simbolo> getContexto() {
+		return this.contexto;
+	}
+	
+	public void showContext() {
+		String result = getLexema() + ":contexto: ";
+		for (Simbolo s : this.contexto) {
+			result += s + ",";
+		}
+		
+		LogHandler.showInfo(result);
+		System.out.println(result);
+		
+	}
+	
+	public boolean removeFromContexto(Simbolo s) {
+		for (int i = 0; i < this.contexto.size(); i++) {
+			if (this.contexto.get(i).getLexema().equals(s.getLexema())) {
+				this.contexto.remove(i);
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	@Override
