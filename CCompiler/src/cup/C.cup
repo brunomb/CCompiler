@@ -134,9 +134,9 @@ postfix_expression
 	{: RESULT = pexp; :}
 	| postfix_expression ABRECOCHETES expression FECHACOCHETES 
 	| postfix_expression:p ABREPARENTESES FECHAPARENTESES
-	{: CheckTypes.checkIfFuncaoExist(p.toString(), ""); :}
+	{: Object f = CheckTypes.checkIfFuncaoExist(p.toString(), ""); TabelaSimbolos.getInstance().addCallFunction(f); :}
 	| postfix_expression:p ABREPARENTESES argument_expression_list:a FECHAPARENTESES
-	{: CheckTypes.checkIfFuncaoExist(p.toString(), a.toString()); :}
+	{: Object f = CheckTypes.checkIfFuncaoExist(p.toString(), a.toString()); TabelaSimbolos.getInstance().addCallFunction(f); :}
 	| postfix_expression PONTO IDENTIFIER
 	| postfix_expression PTR_OP IDENTIFIER
 	| postfix_expression INC_OP
@@ -259,7 +259,7 @@ assignment_expression
 	::= conditional_expression:co
 	{: RESULT = co; :}
 	| unary_expression:en assignment_operator:as assignment_expression:ase
-	{: CheckTypes.checkAssignment(en, ase); RESULT = ase;  :}
+	{: CheckTypes.checkAssignment(en, ase); RESULT = ase; :}
 	;
 
 assignment_operator
@@ -563,7 +563,7 @@ selection_statement
 	::= IF ABREPARENTESES expression FECHAPARENTESES statement
 	| IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement
 	| SWITCH ABREPARENTESES expression:ex FECHAPARENTESES statement:s 
-	{: CheckTypes.checkSwitchEx(ex); System.out.print(s);:}
+	{: CheckTypes.checkSwitchEx(ex); :}
 	;
 
 iteration_statement

@@ -6,6 +6,7 @@ import java.io.FileReader;
 import cup.parser;
 import flex.LexicalAnalysisC;
 import core.CodeGen;
+import core.TabelaSimbolos;
 
 public class Main {
 
@@ -35,9 +36,10 @@ public class Main {
 				s = new LexicalAnalysisC(new FileReader(file));
 				parser p = new parser(s);
 				p.parse();
-				System.out.println("OK :)");
 				
+//				TabelaSimbolos.getInstance().showAll();
 				System.out.println( CodeGen.Go() ); 
+				
 
 			} catch (Exception e) {
 				System.err.print(e.getMessage());

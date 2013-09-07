@@ -25,6 +25,10 @@ public class TabelaSimbolos {
 		return this.simbolos;
 	}
 	
+	public ArrayList<Simbolo> getNewContexto() {
+		return this.newContexto;
+	}
+	
 	public Variavel searchVar(Simbolo s) {
 		
 		for (int i = 0; i < newContexto.size(); i++) {
@@ -84,6 +88,12 @@ public class TabelaSimbolos {
 		}
 
 		return false;
+	}
+	
+	public void addCallFunction(Object o) {
+		Funcao f = (Funcao) o;
+		
+		newContexto.add(new CallFunction(f));
 	}
 	
 	public void addSimbolo(Simbolo s) {

@@ -25,15 +25,13 @@ int teste2() {
 }
 
 void main()
-{
-	switch (1) {
-		case 1:
-			return y;
-			break;
-		case 2:
-			return z;
-			break;
-	}
+{	
+	int x, y;
+	char z;
+	z = "a";
+	
+	x = z;
+	
 
 }
 
