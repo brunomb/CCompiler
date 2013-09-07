@@ -521,7 +521,8 @@ initializer_list
 	;
 
 statement
-	::= labeled_statement
+	::= labeled_statement:ls
+	{: RESULT = ls; :}
 	| compound_statement
 	| expression_statement
 	| selection_statement
@@ -532,7 +533,7 @@ statement
 labeled_statement
 	::= IDENTIFIER DOISPONTOS statement
 	| CASE constant_expression:ce DOISPONTOS statement
-	{: CheckTypes.checkCaseEx(ce); :}
+	{: CheckTypes.checkCaseEx(ce); RESULT = ce; :}
 	| DEFAULT DOISPONTOS statement
 	;
 
@@ -561,8 +562,8 @@ expression_statement
 selection_statement
 	::= IF ABREPARENTESES expression FECHAPARENTESES statement
 	| IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement
-	| SWITCH ABREPARENTESES expression:ex FECHAPARENTESES statement 
-	{: CheckTypes.checkSwitchEx(ex); :}
+	| SWITCH ABREPARENTESES expression:ex FECHAPARENTESES statement:s 
+	{: CheckTypes.checkSwitchEx(ex); System.out.print(s);:}
 	;
 
 iteration_statement

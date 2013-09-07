@@ -26,24 +26,6 @@ int teste2() {
 
 void main()
 {
-	int x, y, z;
-	float k;
-	char ult[];
-	char c;
-	char w[6];
-	x = 1;
-	x = 5;
-	x = y = 6;
-	z = ++x;	
-	x = -x;	
-	y++;
-	x = x + y - (z--);
-	
-	x =  x && y;
-	y = x || y;
-	
-	x = !x;
-	
 	switch (1) {
 		case 1:
 			return y;
