@@ -1,6 +1,5 @@
 package core;
 
-import java.util.ArrayList;
 
 public class CheckTypes {
 	
@@ -90,47 +89,55 @@ public class CheckTypes {
 		Simbolo s1 = (Simbolo) n1;
 		Simbolo s2 = (Simbolo) n2;
 		
+		// s1 deve ser um identificador
 		if (!(s1.getType().equalsIgnoreCase("IDENTIFIER"))) {
 			LogHandler.showError("First argument must be IDENTIFIER");
 			return false;
 		}
-			
+		
 		Variavel v = TabelaSimbolos.getInstance().searchVar(s1);
-			
+		
+		// Checa se v foi declarado
 		if (v == null) {
 			LogHandler.showError("Variavel não foi criada: " + s1.getLexema());
 			return false;
 		}
 		
-		// TODO: FIX CHECK ASSIGMENT
-		
+		// Se o lado direito for um Identificador, checa se ele existe
 		if (s2.getType().equalsIgnoreCase("IDENTIFIER")) {
-			
 			Variavel v2 = TabelaSimbolos.getInstance().searchVar(s2);
 			
-			if (s1.getType().equalsIgnoreCase("STRING") && !v2.getType().equalsIgnoreCase("STRING")) {
-				LogHandler.showError("Tipos não batem.");
-			} else if (!s1.getType().equalsIgnoreCase("STRING") && v2.getType().equalsIgnoreCase("STRING")){
-				LogHandler.showError("Tipos não batem.");
+			if (v2 == null) {
+				LogHandler.showError("Variavel não foi criada: " + s2.getLexema());
+				return false;
+			}
+			
+			if (v2.getValue() == null) {
+				LogHandler.showError("Variavel não foi inicializada: " + v2);
+				return false;
+			}
+			
+			// se existir, checa o tipo
+			if (!v.getType().equalsIgnoreCase(v2.getType())) {
+				LogHandler.showError("Variaveis de tipos diferentes: " + v + "," + v2);
 			}
 			
 			
-			
 			if (v.getType().equalsIgnoreCase(("int"))) {
-				v.setValue(Integer.parseInt(v2.getLexema()));
+				v.setValue(v2.getValue());
 				LogHandler.showInfo("Int with value: " + v.getLexema() + " = " + v.getValue().toString());
 			} else if (v.getType().equalsIgnoreCase("float")) {
-				v.setValue(Float.parseFloat(s2.getLexema()));
+				v.setValue(v2.getValue());
 				LogHandler.showInfo("Float with value: " + v.getLexema() + " = " + v.getValue().toString());
 			} else if (v.getType().equalsIgnoreCase("double")) {
-				v.setValue(Double.parseDouble(s2.getLexema()));
+				v.setValue(v2.getValue());
 				LogHandler.showInfo("Double with value: " + v.getLexema() + " = " + v.getValue().toString());
 			} else if (v.getType().equalsIgnoreCase("char")) {
 				
-				if (s2.getLexema().length() != 3) {
-					LogHandler.showError("Char invalid: " + s2.getLexema());
+				if (v2.getValue().toString().length() != 3) {
+					LogHandler.showError("Char invalid: " + v2.getValue().toString());
 				} else {
-					v.setValue(s2.getLexema().charAt(1));
+					v.setValue(v2.getValue().toString().charAt(1));
 					
 					LogHandler.showInfo("Char with value: " + v.getLexema() + " = " + v.getValue().toString());
 				}
@@ -158,6 +165,7 @@ public class CheckTypes {
 			}
 		}
 		
+		
 		try {
 			TabelaSimbolos.getInstance().getNewContexto().add(new Attr( new Variavel(v.getLexema(), v.getType(), v.getValue())));
 		} catch (Exception e) {
@@ -170,7 +178,6 @@ public class CheckTypes {
 	public static Object checkIfFuncaoExist(String namespace, String strParametros) {
 		
 		namespace = namespace.substring(0, namespace.indexOf("("));
-		ArrayList<Variavel> parametros = new ArrayList<Variavel>();
 		
 		Funcao f = TabelaSimbolos.getInstance().searchFun(new Simbolo(namespace, null, null));
 		
@@ -204,7 +211,6 @@ public class CheckTypes {
 			if (temp.equalsIgnoreCase("CONSTANT") && (f.getParametros().get(i).getType().equalsIgnoreCase("CHAR"))) {
 				LogHandler.showError("Função com parametro incorreto: " + id + "(" + temp + ") deveria ser " + f.getParametros().get(i).getType());
 			} else if (temp.equalsIgnoreCase("STRING") && !(f.getParametros().get(i).getType().equalsIgnoreCase("CHAR"))) {
-				System.err.println(f.getParametros().get(i).getType());
 				LogHandler.showError("Função com parametro incorreto: " + id + "(" + temp + ") deveria ser " + f.getParametros().get(i).getLexema() + ":" + f.getParametros().get(i).getType());
 			} else if (temp.equalsIgnoreCase("IDENTIFIER")) {
 				varTemp = TabelaSimbolos.getInstance().searchVar(id);

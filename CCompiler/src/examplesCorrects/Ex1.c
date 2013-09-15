@@ -27,12 +27,18 @@ int teste2() {
 void main()
 {	
 	int x, y;
+	double w;
 	char z;
-	z = "a";
+	z = "1";
+	w = 10;
+	y = 10;
+	x = y;
+	w = .10;
 	
-	x = z;
+	teste2();
+	teste2();
+	teste(z, x, x, x);
 	
-
 }
 
 

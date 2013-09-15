@@ -3,10 +3,9 @@ package main;
 import java.io.File;
 import java.io.FileReader;
 
+import core.CodeGen;
 import cup.parser;
 import flex.LexicalAnalysisC;
-import core.CodeGen;
-import core.TabelaSimbolos;
 
 public class Main {
 
@@ -37,7 +36,6 @@ public class Main {
 				parser p = new parser(s);
 				p.parse();
 				
-//				TabelaSimbolos.getInstance().showAll();
 				System.out.println( CodeGen.Go() ); 
 				
 

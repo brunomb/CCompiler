@@ -12,11 +12,10 @@ public class Variavel extends Simbolo {
 			this.value = (Float) value;
 		} else if (type.equalsIgnoreCase("double")) {
 			this.value = (Double) value;
-		} else if (type.equalsIgnoreCase("string")) {
-			this.value = (String) value;
+		} else if (type.equalsIgnoreCase("char")) {
+			this.value = value;
 		}
 		
-		this.value = value;
 	}
 
 	public Object getValue() {

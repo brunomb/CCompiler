@@ -2,11 +2,9 @@ package core;
 
 import java.util.ArrayList;
 
-import java_cup.sym;
-
 public class CodeGen {
 	
-	private static ArrayList<Simbolo> registradores = new ArrayList<Simbolo>();
+//	private static ArrayList<Simbolo> registradores = new ArrayList<Simbolo>();
 	private static ArrayList<Simbolo> funcoes = new ArrayList<Simbolo>();
 	
 	public static String getNextLabel(Simbolo s) {
@@ -25,7 +23,7 @@ public class CodeGen {
 				result = result + "halt;\n";
 			}
 			else {
-				result = result + "BR SP;\n";
+				result = result + "BR *(0)SP;\n";
 			}
 			
 		}
@@ -40,18 +38,18 @@ public class CodeGen {
 		
 		for (Simbolo a : f.getContexto()) {
 			if (a instanceof Variavel) {
-				result += GenAttr(a, registradores);
+				result += GenAttrInitializer(a, registradores);
 			} else if (a instanceof CallFunction) {
 				result += GenCallFun(a, registradores);
 			} else if (a instanceof Attr) {
-				result += GenAttrInitializer(a, registradores);
+				result += GenAttr(a, registradores);
 			}
 		}
 		return result;
 	}
 	
 	
-	private static String GenAttrInitializer(Simbolo s, ArrayList<Simbolo> registradores) {
+	private static String GenAttr(Simbolo s, ArrayList<Simbolo> registradores) {
 		String result = "";
 		
 		Attr t = (Attr) s;
@@ -77,14 +75,15 @@ public class CodeGen {
 		
 		String result = "";
 		
-		result += "ADD SP, SP, #size;\n";
-		result += "ST *SP, #" + "pos+16" + ";\n";
+		result += "ADD SP, SP, #" + s.getLexema() + "size;\n";
+		result += "ST *SP, #here+16" + ";\n";
 		result += "BR " + getLabel(s) + ";\n";
+		result += "SUB SP, SP, #" + s.getLexema() + "size;\n";
 		
 		return result;
 	}
 
-	public static String GenAttr(Simbolo s, ArrayList<Simbolo> registradores) {
+	public static String GenAttrInitializer(Simbolo s, ArrayList<Simbolo> registradores) {
 		registradores.add(s);
 		
 		String result = "";

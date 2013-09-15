@@ -8,6 +8,7 @@ public class Attr extends Simbolo {
 	public Attr(Variavel v) {
 		super(v.getLexema(), v.getType(), null);
 		this.v = v;
+		
 	}
 	
 	public Variavel getVar() {

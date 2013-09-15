@@ -48,8 +48,6 @@ public class Simbolo {
 		}
 		
 		LogHandler.showInfo(result);
-		System.out.println(result);
-		
 	}
 	
 	public boolean removeFromContexto(Simbolo s) {
