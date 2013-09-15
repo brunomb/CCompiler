@@ -191,6 +191,9 @@ public class CheckTypes {
 		
 		if (strParametros.contains(",")) {
 			par = strParametros.split(",");
+		} else if (strParametros.length() > 0) {
+			par = new String[1];
+			par[0] = strParametros;
 		} else {
 			par = new String[0];
 		}
